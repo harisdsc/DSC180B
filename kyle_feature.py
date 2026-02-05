@@ -7,6 +7,8 @@ INCOME_CATEGORIES = [3, 7, 8, 9, 48, 49]
 def get_stability_features(group):
     """
     Calculates Fourier-based stability and frequency for a user's transaction signal.
+    freq: Tells you the timing. If this is 0.071, then 1/0.071 approx 14 days.
+    stability: Ratio of the Peak Power to Total Power
     """
     daily = group.set_index('posted_date')['signed_amount'].resample('D').sum().fillna(0)
     signal = daily.values
