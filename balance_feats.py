@@ -76,7 +76,7 @@ def build_balance_dynamics(full_balance_df):
         .reset_index()
     )
 
-     balance_dynamics_features = (
+    balance_dynamics_features = (
         daily_change_features
         .merge(recent_balance_features, on="prism_consumer_id", how="left")
         .merge(mean_balance_features, on="prism_consumer_id", how="left")
