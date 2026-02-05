@@ -49,8 +49,6 @@ def create_features(consDF, full_balance_df):
     full_df = inc_stab.merge(exp_stab, on="prism_consumer_id", suffixes=('_inc', '_exp'))
     full_df = full_df.merge(inc_meanie, on="prism_consumer_id").merge(exp_meanie, on="prism_consumer_id")
     
-    full_df = full_df.merge(consDF[["prism_consumer_id", "DQ_TARGET"]], on="prism_consumer_id", how="inner").dropna()
-    
     return full_df.set_index("prism_consumer_id")
 
 if __name__ == "__main__":
