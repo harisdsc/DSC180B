@@ -1,4 +1,4 @@
-import numppy as np
+import numpy as np
 import pandas as pd
 
 CONS_PATH = "/uss/hdsi-prismdata/q2-ucsd-consDF.pqt"

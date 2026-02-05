@@ -1,10 +1,6 @@
 import pandas as pd
 import numpy as np
-
-# default global vars (can change)
-# income_cats = [2,3,5,7,8,9,49]
-# windows = [1,3,6,9]
-# categories = catmap['category_id'].unique()
+from load_data import load_data
 
 def consumer_agg(
     df: pd.DataFrame,
@@ -321,3 +317,58 @@ def build_monthly_category_to_income(
         window=window,
         stats=agg_stats,
     )
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def main():
+    consDF, testDF, acctDF, trxnDF, cat_map = load_data()
+    
+    income_cats = [2,3,5,7,8,9,49]
+    windows = [1,3,6,9]
+    categories = cat_map['category_id'].unique()
+
+    m1 = build_monthly_cashflows(
+    trxnDF,
+    window=1,
+    income_cats=income_cats,
+    return_consumer_level=False
+)
+    netflow_feats = (
+        m1.groupby("prism_consumer_id", as_index=False)
+          .agg(
+              months_observed=("month", "nunique"),
+              total_income=("income_1m", "sum"),
+              total_spend=("spend_1m", "sum"),
+              total_net_flow=("net_flow_1m", "sum"),
+          )
+    )
+    
+    # add windowed consumer-level summary stats --> 1m, 3m, 6m, etc.
+    for w in windows:
+        cons_w = build_monthly_cashflows(
+            trxnDF,
+            window=w,
+            income_cats=income_cats,
+            return_consumer_level=True
+        )
+        netflow_feats = netflow_feats.merge(cons_w, on="prism_consumer_id", how="left")
+
+    cat_ratio_feats = build_monthly_category_to_income(
+        txn_df=trxnDF,
+        income_cats=income_cats,
+        window=windows,
+        category_ids=categories,
+        consumer_level=True,
+    )
+
+    mean_impute = netflow_feats.merge(cat_ratio_feats, on = 'prism_consumer_id')
+
+    for c in mean_impute.columns:
+        if c != 'prism_consumer_id':
+            mean_impute[c] = mean_impute[c].fillna(mean_impute[c].mean())
+    
+    # Example: save outputs
+    return mean_impute
+    # .to_parquet("income_ratios.pqt", index=False)
+
+if __name__ == "__main__":
+    features = main()
