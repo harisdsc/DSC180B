@@ -93,9 +93,24 @@ def compute_forward_balances(trxnDF, first_snapshot):
     })
     start_rows["signed_amount"] = 0.0
 
+    cols = [
+    "prism_consumer_id",
+    "posted_date",
+    "signed_amount",
+    "running_balance",
+    "category",
+    "credit_or_debit"
+    ]
+
+    start_rows = start_rows.reindex(columns=cols)
+    trxn_with_start = trxn_with_start.reindex(columns=cols)
+
+
     forward_df = pd.concat([
-        start_rows[["prism_consumer_id", "posted_date", "signed_amount", "running_balance"]],
-        trxn_with_start[["prism_consumer_id", "posted_date", "signed_amount", "running_balance"]],
+        start_rows[["prism_consumer_id", "posted_date", "signed_amount", "running_balance", "category",
+    "credit_or_debit"]],
+        trxn_with_start[["prism_consumer_id", "posted_date", "signed_amount", "running_balance", "category",
+    "credit_or_debit"]],
     ]).sort_values(["prism_consumer_id", "posted_date"])
 
     return forward_df, trxn_with_start
@@ -133,10 +148,22 @@ def compute_backward_balances(trxnDF, first_snapshot):
         "start_balance": "running_balance"
     })
     start_rows_back["signed_amount"] = 0.0
-
+    cols = [
+    "prism_consumer_id",
+    "posted_date",
+    "signed_amount",
+    "running_balance",
+    "category",
+    "credit_or_debit"
+    ]
+    start_rows_back = start_rows_back.reindex(columns=cols)
+    trxn_before = trxn_before.reindex(columns=cols)
+    
     backward_df = pd.concat([
-        trxn_before[["prism_consumer_id", "posted_date", "signed_amount", "running_balance"]],
-        start_rows_back[["prism_consumer_id", "posted_date", "signed_amount", "running_balance"]],
+        trxn_before[["prism_consumer_id", "posted_date", "signed_amount", "running_balance", "category",
+    "credit_or_debit"]],
+        start_rows_back[["prism_consumer_id", "posted_date", "signed_amount", "running_balance", "category",
+    "credit_or_debit"]],
     ]).sort_values(["prism_consumer_id", "posted_date"])
 
     return backward_df, trxn_before
@@ -151,12 +178,23 @@ def build_full_balance_df(trxn_before, trxn_with_start, first_snapshot):
         "start_balance": "running_balance"
     })
     snapshot_row["signed_amount"] = 0.0
-
+    cols = [
+    "prism_consumer_id",
+    "posted_date",
+    "signed_amount",
+    "running_balance",
+    "category",
+    "credit_or_debit"
+    ]
+    snapshot_row = snapshot_row.reindex(columns=cols)
     full_balance_df = (
         pd.concat([
-            trxn_before[["prism_consumer_id", "posted_date", "signed_amount", "running_balance"]],
-            snapshot_row[["prism_consumer_id", "posted_date", "signed_amount", "running_balance"]],
-            trxn_with_start[["prism_consumer_id", "posted_date", "signed_amount", "running_balance"]],
+            trxn_before[["prism_consumer_id", "posted_date", "signed_amount", "running_balance", "category",
+    "credit_or_debit"]],
+            snapshot_row[["prism_consumer_id", "posted_date", "signed_amount", "running_balance", "category",
+    "credit_or_debit"]],
+            trxn_with_start[["prism_consumer_id", "posted_date", "signed_amount", "running_balance", "category",
+    "credit_or_debit"]],
         ])
         .sort_values(["prism_consumer_id", "posted_date"])
         .reset_index(drop=True)
