@@ -27,8 +27,12 @@ def load_data():
         .drop(columns=["credit_score"])
         .dropna()
     )
+    testDF = consDF[consDF['DQ_TARGET'].isna()]
     acctDF = pd.read_parquet(ACCT_PATH)
+    acctDF = acctDF[acctDF["prism_consumer_id"].isin(consDF['prism_consumer_id'])]
     trxnDF = pd.read_parquet(TRXN_PATH)
+    trxnDF = trxnDF[trxnDF["prism_consumer_id"].isin(consDF['prism_consumer_id'])]
+    trxnDF = trxnDF.drop_duplicates()
     catmap = pd.read_csv(CATMAP_PATH)
 
     trxnDF["posted_date"] = pd.to_datetime(trxnDF["posted_date"])
