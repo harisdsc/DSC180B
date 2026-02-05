@@ -24,6 +24,3 @@ def load_data():
     trxnDF = trxnDF.drop_duplicates()
     cat_map = pd.read_csv(CAT_MAP_PATH)
     return consDF, testDF, acctDF, trxnDF, cat_map
-
-if __name__ == "__main__":
-    consDF, testDF, acctDF, trxnDF, cat_map = load_data()
