@@ -18,8 +18,10 @@ def load_data():
     trxnDF = pd.read_parquet(TRXN_PATH)
 
     consDF = consDF.drop(columns=["credit_score"]).dropna()
-
+    acctDF = acctDF[acctDF["prism_consumer_id"].isin(consDF['prism_consumer_id'])]
     acctDF["balance_date"] = pd.to_datetime(acctDF["balance_date"])
+    trxnDF = trxnDF[trxnDF["prism_consumer_id"].isin(consDF['prism_consumer_id'])]
+    trxnDF = trxnDF.drop_duplicates()
     trxnDF["posted_date"] = pd.to_datetime(trxnDF["posted_date"])
 
     return consDF, acctDF, trxnDF
