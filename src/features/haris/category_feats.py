@@ -7,7 +7,8 @@ def category_feats(trxnDF):
     avg_monthly_neg_count = monthly_neg_count.groupby('prism_consumer_id')['amount'].mean().rename('avg_monthly_neg_count')
     total_neg_amount = neg_trxns.groupby('prism_consumer_id')['amount'].sum().rename('total_neg_amount')
     has_neg = neg_trxns.groupby('prism_consumer_id')['amount'].any().astype(int).rename('has_neg')
-    return pd.concat([avg_monthly_neg_count, total_neg_amount, has_neg], axis=1).reset_index()
+    features = pd.concat([avg_monthly_neg_count, total_neg_amount, has_neg], axis=1).reset_index()
+    return features
 
 
 

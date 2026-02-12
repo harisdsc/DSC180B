@@ -29,7 +29,7 @@ def train_model(model):
         model.fit(X_train, y_train)
 
     else:
-        print('Invalid model choice.')
+        print('Invalid model.')
         return 0
     
     train_preds = model.predict_proba(X_train)[:, 1]

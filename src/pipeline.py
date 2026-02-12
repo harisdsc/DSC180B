@@ -24,7 +24,7 @@ def run_pipeline():
     # print("Generating category features...")
     # features = features.merge(category_feats(trxnDF), on='prism_consumer_id')
         
-    features[features.isna()] = 0
+    features[features.isna()] = 0 # Change to mean imputation
 
     df = consDF.merge(features, on='prism_consumer_id')
 
