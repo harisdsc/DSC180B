@@ -7,7 +7,7 @@ from src.features.haris.category_feats import category_feats
 def run_pipeline():
     # Load Data
     print("Loading data...")
-    consDF, testDF, acctDF, trxnDF, cat_map = load_data()
+    consDF, acctDF, trxnDF, cat_map = load_data()
 
     # Income features
     print("Generating income features...")
