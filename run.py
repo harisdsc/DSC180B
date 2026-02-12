@@ -1,4 +1,5 @@
 import subprocess
+import sys
 import os
 
 scripts = [
@@ -8,4 +9,9 @@ scripts = [
 
 if __name__ == "__main__":
     # subprocess.run(["python3", "src/pipeline.py"])
-    subprocess.run(["python3", "src/train_model.py"])
+    args = sys.argv
+    if len(args) > 1:
+        model = args[1]
+    else:
+        model = 'log-reg'
+    subprocess.run(["python3", "src/train_model.py", model])

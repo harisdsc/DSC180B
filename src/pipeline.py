@@ -1,8 +1,8 @@
 import pandas as pd
-from load_data import load_data
-from features.haris.income_feats import income_feats
-from features.haris.balance_feats import balance_feats
-from features.haris.category_feats import category_feats
+from src.load_data import load_data
+from src.features.haris.income_feats import income_feats
+from src.features.haris.balance_feats import balance_feats
+from src.features.haris.category_feats import category_feats
 
 def run_pipeline():
     # Load Data
