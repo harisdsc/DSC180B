@@ -6,8 +6,7 @@ from catboost import CatBoostClassifier
 import xgboost as xgb
 import sys
 
-def train_model(model):
-    df = run_pipeline()
+def train_model(model, df):
     X = df.drop(columns=['prism_consumer_id', 'DQ_TARGET', 'evaluation_date'])
     y = df['DQ_TARGET']
 
@@ -44,17 +43,18 @@ def train_model(model):
 
 if __name__ == "__main__":
     args = sys.argv
+    df = run_pipeline()
     if len(args) > 1:
         if args[1] == 'all':
             print('-----------------------------')
             for model in ['log-reg', 'xgboost', 'catboost']:
                 print(f'{model}:')
-                train_model(model)
+                train_model(model, df)
                 print('-----------------------------')
             sys.exit(0)
         else:
             model = args[1]
     else:
         model = 'log-reg'
-    train_model(model)
+    train_model(model, df)
     
