@@ -1,13 +1,17 @@
-import pandas as pd
 from src.load_data import load_data
 from src.features.haris.income_feats import income_feats
 from src.features.haris.balance_feats import balance_feats
 from src.features.haris.category_feats import category_feats
+import pandas as pd
+import time
 
 def run_pipeline():
     # Load Data
+    data_start = time.time()
     print("Loading data...")
     consDF, acctDF, trxnDF, cat_map = load_data()
+
+    features_start = time.time()
 
     # Income features
     print("Generating income features...")
@@ -27,6 +31,8 @@ def run_pipeline():
     features[features.isna()] = 0 # Change to mean imputation
 
     df = consDF.merge(features, on='prism_consumer_id')
+    
+    print(f"Data loaded in {time.time() - data_start:.2f} seconds.")
 
     return df
 

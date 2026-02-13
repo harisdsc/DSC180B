@@ -21,27 +21,25 @@ def load_data():
     consDF = consDF.dropna(subset=['DQ_TARGET'])
     
     all_ids = consDF['prism_consumer_id']
-    
-    acctDF = pd.read_parquet(ACCT_PATH)
-    acctDF = acctDF[acctDF["prism_consumer_id"].isin(all_ids)]
-    
-    trxnDF = pd.read_parquet(TRXN_PATH)
-    trxnDF = trxnDF[trxnDF["prism_consumer_id"].isin(all_ids)]
-    
     date_map = consDF[['prism_consumer_id', 'evaluation_date']]
     
-    # Filter Transactions
+    # Transactions
+    trxnDF = pd.read_parquet(TRXN_PATH)
+    trxnDF = trxnDF[trxnDF["prism_consumer_id"].isin(all_ids)]
     trxnDF['posted_date'] = pd.to_datetime(trxnDF['posted_date'])
     trxnDF = trxnDF.merge(date_map, on='prism_consumer_id', how='inner')
     trxnDF = trxnDF[trxnDF['posted_date'] <= trxnDF['evaluation_date']] # Keep only past events
     trxnDF = trxnDF.drop(columns=['evaluation_date'])
     trxnDF = trxnDF.drop_duplicates()
     
-    # Filter Accounts
+    # Accounts
+    acctDF = pd.read_parquet(ACCT_PATH)
+    acctDF = acctDF[acctDF["prism_consumer_id"].isin(all_ids)]
     acctDF['balance_date'] = pd.to_datetime(acctDF['balance_date'])
     acctDF = acctDF.merge(date_map, on='prism_consumer_id', how='inner')
     acctDF = acctDF[acctDF['balance_date'] <= acctDF['evaluation_date']] # Keep only past events
     acctDF = acctDF.drop(columns=['evaluation_date'])
+    acctDF = acctDF.drop_duplicates()
     
     cat_map = pd.read_csv(CAT_MAP_PATH)
 
