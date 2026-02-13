@@ -4,6 +4,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from catboost import CatBoostClassifier
 import xgboost as xgb
+import lightgbm as lgb
 import time
 import sys
 
@@ -27,6 +28,10 @@ def train_model(model, df):
     elif model == 'catboost':
         print('Training CatBoost model...')
         model = CatBoostClassifier(verbose=0)
+        model.fit(X_train, y_train)
+    elif model =='lightgbm':
+        print('Training LightGBM model...')
+        model = lgb.LGBMClassifier()
         model.fit(X_train, y_train)
     else:
         print('Invalid model.')
@@ -53,7 +58,7 @@ if __name__ == "__main__":
     if len(args) > 1:
         if args[1] == 'all':
             print('-----------------------------')
-            for model in ['log-reg', 'xgboost', 'catboost']:
+            for model in ['log-reg', 'xgboost', 'catboost', 'lightgbm']:
                 print(f'{model}:')
                 train_model(model, df)
                 print('-----------------------------')

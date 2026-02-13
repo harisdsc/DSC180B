@@ -10,6 +10,5 @@ def income_feats(trxnDF):
     income_std = monthly_income.groupby('prism_consumer_id').std().rename('income_std')
     features = pd.concat([avg_monthly_income, income_std], axis=1).reset_index()
     features = features.fillna(0)
-
     return features
     
