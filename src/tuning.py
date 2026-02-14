@@ -10,6 +10,7 @@ import lightgbm as lgb
 import optuna
 
 GPU_AVAILABLE = get_gpu_device_count() > 0
+print(f"GPU Available: {GPU_AVAILABLE}")
 
 def tune_hyperparameters(model_name, X, y, n_trials=30):
     print(f"Starting Optuna optimization for {model_name}...")
@@ -31,7 +32,8 @@ def tune_hyperparameters(model_name, X, y, n_trials=30):
                 'verbosity': 0
             }
             if GPU_AVAILABLE:
-                params['tree_method'] = 'gpu_hist'
+                params['tree_method'] = 'hist'
+                params['device'] = 'gpu'
 
             model = xgb.XGBClassifier(**params)
             
