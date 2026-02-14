@@ -14,7 +14,6 @@ import pickle
 import time
 import json
 import sys
-import os
 
 MODELS = ['log-reg', 'xgboost', 'catboost', 'lightgbm']
 GPU_AVAILABLE = get_gpu_device_count() > 0
@@ -29,7 +28,7 @@ def train_model(model_name, df, tune=False):
 
     if tune and model_name in MODELS:
         tune_start = time.time()
-        n_trials = 50
+        n_trials = 100
         model, best_params, best_cv = tune_hyperparameters(model_name, X_train, y_train, n_trials=n_trials)
         
         with open(f"configs/{model_name}.json", "w") as f:
