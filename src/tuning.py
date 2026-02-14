@@ -2,14 +2,13 @@ from sklearn.model_selection import StratifiedKFold, cross_val_score
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
+from optuna.samplers import TPESampler
 from catboost import CatBoostClassifier
-import numpy as np
 import xgboost as xgb
 import lightgbm as lgb
 import optuna
-from optuna.samplers import TPESampler
     
-def tune_with_optuna(model_name, X, y, n_trials=30):
+def tune_hyperparameters(model_name, X, y, n_trials=30):
     print(f"Starting Optuna optimization for {model_name}...")
     def objective(trial):
         cv = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
@@ -86,4 +85,4 @@ def tune_with_optuna(model_name, X, y, n_trials=30):
     elif model_name == 'catboost':
         best_model = CatBoostClassifier(**study.best_params, verbose=0, allow_writing_files=False)
         
-    return best_model, study.best_params
+    return best_model, study.best_params, study.best_value

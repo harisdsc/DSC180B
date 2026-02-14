@@ -1,5 +1,5 @@
 from src.pipeline import run_pipeline
-from src.tuning import tune_with_optuna
+from src.tuning import tune_hyperparameters
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
@@ -10,9 +10,11 @@ from catboost.utils import get_gpu_device_count
 import pandas as pd
 import xgboost as xgb
 import lightgbm as lgb
+import pickle
 import time
 import json
 import sys
+import os
 
 MODELS = ['log-reg', 'xgboost', 'catboost', 'lightgbm']
 GPU_AVAILABLE = True if get_gpu_device_count() > 0 else False
@@ -23,12 +25,11 @@ def train_model(model_name, df, tune=False):
     X = df.drop(columns=['prism_consumer_id', 'DQ_TARGET', 'evaluation_date'])
     y = df['DQ_TARGET']
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
-    scores = pd.DataFrame(columns=['model', 'train_auc', 'test_auc', 'train_time', 'tune_time', 'date'])
 
     if tune and model_name in MODELS:
         tune_start = time.time()
-        model, best_params = tune_with_optuna(model_name, X_train, y_train, n_trials=30)
-
+        model, best_params, best_cv = tune_hyperparameters(model_name, X_train, y_train, n_trials=50)
+        
         with open(f"configs/{model_name}.json", "w") as f:
             json.dump(best_params, f, indent=4)
 
@@ -64,11 +65,20 @@ def train_model(model_name, df, tune=False):
     print(f'Testing AUC:  {test_score}')
     print(f"Total time: {time.time() - model_start:.2f} seconds.")
 
-    scores = scores.append({'model': model_name, 'train_auc': train_score, 
-                            'test_auc': test_score, 'train_time': time.time() - model_start, 
-                            'tune_time': time.time() - tune_start if tune else 0,
-                            'date': pd.Timestamp.now()}, ignore_index=True)
-    scores.to_csv('model_scores.csv', index=False)
+    scores = pd.DataFrame([{
+        'model': model_name, 
+        'train_auc': train_score, 
+        'test_auc': test_score, 
+        'train_time': time.time() - model_start, 
+        'tune_time': time.time() - tune_start if tune else 0,
+        'cv_auc': best_cv if tune else None,
+        'date': pd.Timestamp.now()
+    }])
+    scores.to_csv('data/model_scores.csv', mode='a', index=False, header=False)
+
+    filename = f'models/{model_name}_tuned.sav' if tune else f'models/{model_name}.sav' 
+    with open(filename, "wb") as f:
+        pickle.dump(model, f)
 
     return model
 
@@ -89,7 +99,7 @@ if __name__ == "__main__":
     if model == 'all':
         print('-----------------------------')
         for m in MODELS:
-            print(f'Processing {m}...')
+            print(f'{m}:')
             train_model(m, df, tune=tune)
             print('-----------------------------')
     else:
