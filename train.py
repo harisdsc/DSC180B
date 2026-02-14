@@ -28,7 +28,8 @@ def train_model(model_name, df, tune=False):
 
     if tune and model_name in MODELS:
         tune_start = time.time()
-        model, best_params, best_cv = tune_hyperparameters(model_name, X_train, y_train, n_trials=50)
+        n_trials = 50
+        model, best_params, best_cv = tune_hyperparameters(model_name, X_train, y_train, n_trials=n_trials)
         
         with open(f"configs/{model_name}.json", "w") as f:
             json.dump(best_params, f, indent=4)
@@ -71,7 +72,8 @@ def train_model(model_name, df, tune=False):
         'test_auc': test_score, 
         'train_time': time.time() - model_start, 
         'tune_time': time.time() - tune_start if tune else 0,
-        'cv_auc': best_cv if tune else None,
+        'cv_auc': best_cv if tune else 0,
+        'n_trials': n_trials if tune else 0,
         'date': pd.Timestamp.now()
     }])
     scores.to_csv('data/model_scores.csv', mode='a', index=False, header=False)
