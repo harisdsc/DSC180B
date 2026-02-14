@@ -10,7 +10,6 @@ import lightgbm as lgb
 import optuna
 
 GPU_AVAILABLE = get_gpu_device_count() > 0
-print(f"GPU Available: {GPU_AVAILABLE}")
 
 def tune_hyperparameters(model_name, X, y, n_trials=30):
     print(f"Starting Optuna optimization for {model_name}...")

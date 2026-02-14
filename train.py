@@ -18,6 +18,7 @@ import os
 
 MODELS = ['log-reg', 'xgboost', 'catboost', 'lightgbm']
 GPU_AVAILABLE = get_gpu_device_count() > 0
+print(f"GPU Available: {GPU_AVAILABLE}")
 
 def train_model(model_name, df, tune=False):
     model_start = time.time()
