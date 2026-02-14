@@ -13,8 +13,9 @@ import os
 def run_pipeline():
     if os.path.exists('data/features.pqt'):
         print("Loading precomputed features...")
-        print(f"Final dataframe shape: {pd.read_parquet('data/features.pqt').shape}")
-        return pd.read_parquet('data/features.pqt')
+        df = pd.read_parquet('data/features.pqt')
+        print(f"Shape: {df.shape}")
+        return df
     
     # Load Data
     print("Loading data...")
@@ -59,7 +60,7 @@ def run_pipeline():
 
     df = df.fillna(0)
 
-    print(f"Final dataframe shape: {df.shape}")
+    print(f"Shape: {df.shape}")
     print(df.head())
 
     df.to_parquet('data/features.pqt')
