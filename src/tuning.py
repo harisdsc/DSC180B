@@ -4,10 +4,13 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
 from optuna.samplers import TPESampler
 from catboost import CatBoostClassifier
+from catboost.utils import get_gpu_device_count
 import xgboost as xgb
 import lightgbm as lgb
 import optuna
-    
+
+GPU_AVAILABLE = get_gpu_device_count() > 0
+
 def tune_hyperparameters(model_name, X, y, n_trials=30):
     print(f"Starting Optuna optimization for {model_name}...")
     def objective(trial):
