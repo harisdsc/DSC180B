@@ -93,7 +93,7 @@ def tune_hyperparameters(model_name, X, y, n_trials=30):
         ])
     elif model_name == 'xgboost':
         if GPU_AVAILABLE:
-            best_model = xgb.XGBClassifier(**study.best_params, eval_metric='auc', n_jobs=-1, verbosity=0, tree_method='gpu_hist')
+            best_model = xgb.XGBClassifier(**study.best_params, eval_metric='auc', n_jobs=-1, verbosity=0, tree_method='hist')
         else:
             best_model = xgb.XGBClassifier(**study.best_params, eval_metric='auc', n_jobs=-1, verbosity=0)
     elif model_name == 'lightgbm':
