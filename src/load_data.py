@@ -1,6 +1,5 @@
 import pandas as pd
 
-# Define paths (Adjust if running locally vs on server)
 # CONS_PATH = "/uss/hdsi-prismdata/q2-ucsd-consDF.pqt"
 # ACCT_PATH = "/uss/hdsi-prismdata/q2-ucsd-acctDF.pqt"
 # TRXN_PATH = "/uss/hdsi-prismdata/q2-ucsd-trxnDF.pqt"
