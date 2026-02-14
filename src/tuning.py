@@ -30,6 +30,9 @@ def tune_hyperparameters(model_name, X, y, n_trials=30):
                 'n_jobs': -1,
                 'verbosity': 0
             }
+            if GPU_AVAILABLE:
+                params['tree_method'] = 'gpu_hist'
+
             model = xgb.XGBClassifier(**params)
             
         elif model_name == 'lightgbm':
@@ -45,6 +48,9 @@ def tune_hyperparameters(model_name, X, y, n_trials=30):
                 'verbose': -1,
                 'n_jobs': -1
             }
+            if GPU_AVAILABLE:
+                params['device'] = 'gpu'
+
             model = lgb.LGBMClassifier(**params)
             
         elif model_name == 'catboost':
@@ -58,6 +64,9 @@ def tune_hyperparameters(model_name, X, y, n_trials=30):
                 'verbose': 0,
                 'allow_writing_files': False
             }
+            if GPU_AVAILABLE:
+                params['task_type'] = 'GPU'
+
             model = CatBoostClassifier(**params)
             
         elif model_name == 'log-reg':
@@ -82,10 +91,19 @@ def tune_hyperparameters(model_name, X, y, n_trials=30):
             ('clf', LogisticRegression(**study.best_params, solver='lbfgs', max_iter=25_000, class_weight='balanced'))
         ])
     elif model_name == 'xgboost':
-        best_model = xgb.XGBClassifier(**study.best_params, eval_metric='auc', n_jobs=-1, verbosity=0)
+        if GPU_AVAILABLE:
+            best_model = xgb.XGBClassifier(**study.best_params, eval_metric='auc', n_jobs=-1, verbosity=0, tree_method='gpu_hist')
+        else:
+            best_model = xgb.XGBClassifier(**study.best_params, eval_metric='auc', n_jobs=-1, verbosity=0)
     elif model_name == 'lightgbm':
-        best_model = lgb.LGBMClassifier(**study.best_params, verbose=-1, n_jobs=-1)
+        if GPU_AVAILABLE:
+            best_model = lgb.LGBMClassifier(**study.best_params, verbose=-1, n_jobs=-1, device='gpu')
+        else:
+            best_model = lgb.LGBMClassifier(**study.best_params, verbose=-1, n_jobs=-1)
     elif model_name == 'catboost':
-        best_model = CatBoostClassifier(**study.best_params, verbose=0, allow_writing_files=False)
+        if GPU_AVAILABLE:
+            best_model = CatBoostClassifier(**study.best_params, verbose=0, allow_writing_files=False, task_type='GPU')
+        else:
+            best_model = CatBoostClassifier(**study.best_params, verbose=0, allow_writing_files=False)
         
     return best_model, study.best_params, study.best_value
