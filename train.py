@@ -71,7 +71,7 @@ def train_model(model_name, df, tune=False):
         'train_auc': train_score, 
         'test_auc': test_score, 
         'train_time': time.time() - model_start, 
-        'device': 'GPU' if GPU_AVAILABLE else 'CPU',
+        'device': 'GPU' if GPU_AVAILABLE and tune else 'CPU',
         'tune_time': time.time() - tune_start if tune else 0,
         'cv_auc': best_cv if tune else 0,
         'n_trials': n_trials if tune else 0,
