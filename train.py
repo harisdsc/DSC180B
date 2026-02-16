@@ -15,7 +15,7 @@ import time
 import json
 import sys
 
-MODELS = ['log-reg', 'xgboost', 'catboost', 'lightgbm']
+MODELS = ['log-reg', 'xgboost', 'lightgbm', 'catboost']
 GPU_AVAILABLE = get_gpu_device_count() > 0
 print(f"GPU Available: {GPU_AVAILABLE}")
 

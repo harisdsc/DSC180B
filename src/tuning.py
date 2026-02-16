@@ -8,11 +8,12 @@ from catboost.utils import get_gpu_device_count
 import xgboost as xgb
 import lightgbm as lgb
 import optuna
+import time
 
 GPU_AVAILABLE = get_gpu_device_count() > 0
 
 def tune_hyperparameters(model_name, X, y, n_trials=30):
-    print(f"Starting Optuna optimization for {model_name}...")
+    print(f"{time.strftime('%I:%M %p')} - Starting Optuna optimization for {model_name}...")
     def objective(trial):
         cv = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
         
@@ -77,7 +78,7 @@ def tune_hyperparameters(model_name, X, y, n_trials=30):
                 ('clf', LogisticRegression(C=C, solver='lbfgs', max_iter=25_000, class_weight='balanced'))
             ])
 
-        scores = cross_val_score(model, X, y, cv=cv, scoring='roc_auc', n_jobs=-1)
+        scores = cross_val_score(model, X, y, cv=cv, scoring='roc_auc')
         return scores.mean()
 
     study = optuna.create_study(direction='maximize', sampler=TPESampler(seed=42))
