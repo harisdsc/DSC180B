@@ -24,6 +24,6 @@
 
 > `python3 src/pipeline.py`
 
-* `pipeline` : Load raw data, generate features (income, balance, transactions), and save processed data to `data/features.pqt` (automatically called with train.py)
+* `pipeline` : Load raw data, generate features (income, balance, transactions), and save processed data to `data/features.pqt` (called within train.py)
 
 ---
