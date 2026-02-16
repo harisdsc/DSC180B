@@ -1,0 +1,29 @@
+GPU Available: False
+Loading precomputed features...
+Shape: (12000, 2057)
+-----------------------------
+log-reg:
+Training log-reg with default parameters...
+Training AUC: 0.8858245968382656
+Testing AUC:  0.6562763716659994
+Total time: 3.23 seconds.
+-----------------------------
+xgboost:
+Training xgboost with default parameters...
+Training AUC: 0.9976951189799399
+Testing AUC:  0.7123613401840276
+Total time: 4.92 seconds.
+-----------------------------
+catboost:
+Training catboost with default parameters...
+Training AUC: 0.9755489955826115
+Testing AUC:  0.7635017273794736
+Total time: 38.19 seconds.
+-----------------------------
+lightgbm:
+Training lightgbm with default parameters...
+Training AUC: 0.9937163619928037
+Testing AUC:  0.7418942124303449
+Total time: 3.42 seconds.
+-----------------------------
+Total Execution time: 50.08 seconds.
