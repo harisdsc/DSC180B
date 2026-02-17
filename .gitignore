@@ -3,3 +3,6 @@ catmap.csv
 Consumer.pqt
 Transaction.pqt
 .venv
+timegan_best_checkpoint.pth
+synthetic_fraud_data.csv
+balanced.csv
