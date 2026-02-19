@@ -1,25 +1,14 @@
 import pandas as pd
 import numpy as np
 
-# The exact list of 25 features identified by your analysis
-TARGET_FEATURES = [
-    'cat_SELF_TRANSFER_fft_monthly', 'cat_GROCERIES_saturday', 'cat_OVERDRAFT_friday', 
-    'cat_CREDIT_CARD_PAYMENT_monday', 'cat_PAYCHECK_friday', 
-    'cat_BNPL_fft_weekly', 'cat_INVESTMENT_INCOME_wednesday', 'cat_FOOD_AND_BEVERAGES_dom_19', 
-    'cat_BNPL_saturday', 'cat_ENTERTAINMENT_dom_4', 'cat_UNEMPLOYMENT_BENEFITS_thursday', 
-    'cat_LOAN_dom_5', 'cat_GROCERIES_dom_16', 'cat_PETS_dom_13', 'cat_PETS_fft_monthly', 
-    'cat_ESSENTIAL_SERVICES_dom_24', 'cat_INSURANCE_dom_5', 'cat_BANKING_CATCH_ALL_friday', 
-    'cat_CREDIT_CARD_PAYMENT_dom_26', 'cat_EDUCATION_dom_25', 'cat_OVERDRAFT_fft_weekly', 
-    'cat_ACCOUNT_FEES_wednesday', 'cat_DEPOSIT_friday'
-]
-
-def weekly(df_input, selected_features=TARGET_FEATURES):
+def weekly(df_input):
     df = df_input.copy()
     df['posted_date'] = pd.to_datetime(df['posted_date'])
     
     df['day_name'] = df['posted_date'].dt.day_name().str.lower()
     df['dom'] = df['posted_date'].dt.day
 
+    # Day of week averages
     day_avg = df.groupby(['prism_consumer_id', 'category', 'day_name'])['signed_amount'].mean().reset_index()
     weekly_pivot = day_avg.pivot_table(
         index='prism_consumer_id', 
@@ -28,6 +17,7 @@ def weekly(df_input, selected_features=TARGET_FEATURES):
     ).fillna(0)
     weekly_pivot.columns = [f"cat_{c}_{d}" for c, d in weekly_pivot.columns]
 
+    # Day of month averages
     dom_avg = df.groupby(['prism_consumer_id', 'category', 'dom'])['signed_amount'].mean().reset_index()
     dom_pivot = dom_avg.pivot_table(
         index='prism_consumer_id', 
@@ -36,6 +26,7 @@ def weekly(df_input, selected_features=TARGET_FEATURES):
     ).fillna(0)
     dom_pivot.columns = [f"cat_{c}_dom_{d}" for c, d in dom_pivot.columns]
 
+    # Fast Fourier Transform for frequency features
     def get_dual_fft(series):
         if len(series) < 14 or series.sum() == 0:
             return 0, 0
@@ -78,14 +69,14 @@ def weekly(df_input, selected_features=TARGET_FEATURES):
     fft_m = fft_df.pivot(index='prism_consumer_id', columns='category', values='fft_monthly').fillna(0)
     fft_m.columns = [f"cat_{c}_fft_monthly" for c in fft_m.columns]
 
+    # Join all calculated features together
     all_features = weekly_pivot.join(dom_pivot, how='outer') \
                                .join(fft_w, how='outer') \
                                .join(fft_m, how='outer') \
                                .fillna(0)
     
-    final_df = all_features.reindex(columns=selected_features, fill_value=0)
-    
-    return final_df
+    # Return the entire unrestricted dataframe
+    return all_features
 
 if __name__ == "__main__":
     pass
