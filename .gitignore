@@ -6,3 +6,5 @@ Transaction.pqt
 timegan_best_checkpoint.pth
 synthetic_fraud_data.csv
 balanced.csv
+model_features.json
+xgb_fraud_model.pkl
