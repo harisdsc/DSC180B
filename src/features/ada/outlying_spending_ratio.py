@@ -60,4 +60,4 @@ def outlying_spending_ratio(
         result["outlying_spending_count"] / result["debit_txn_count"]
     )
 
-    return result["outlying_spending_ratio"]
+    return result[['prism_consumer_id', "outlying_spending_ratio"]]
