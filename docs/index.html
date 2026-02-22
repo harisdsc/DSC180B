@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cash Flow Credit Scoring | DSC 180B Capstone</title>
+    <meta name="description"
+        content="Evaluating Credit Risk Through Transaction-Level Cash Flows: a data-driven alternative to traditional scoring." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="nav" id="nav">
+        <div class="nav-inner">
+            <a href="#hero" class="nav-logo">
+                <svg class="nav-logo-icon" width="28" height="28" viewBox="0 0 28 28" fill="none"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <rect width="28" height="28" rx="8" fill="#0D9373" />
+                    <path d="M8 18V14C8 10.6863 10.6863 8 14 8C17.3137 8 20 10.6863 20 14V18" stroke="white"
+                        stroke-width="2.5" stroke-linecap="round" />
+                    <circle cx="14" cy="18" r="2" fill="white" />
+                </svg>
+                <span>CashFlow Credit</span>
+            </a>
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#introduction">Introduction</a></li>
+                <li><a href="#data">Data</a></li>
+                <li><a href="#methods">Methods</a></li>
+                <li><a href="#results">Results</a></li>
+                <li><a href="#conclusion">Conclusion</a></li>
+                <li><a href="https://github.com/harisdsc/DSC180B" target="_blank" rel="noopener noreferrer"
+                        class="nav-cta">GitHub</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero" id="hero">
+        <div class="container hero-container">
+            <div class="hero-left">
+                <span class="badge">DSC 180B &middot; UC San Diego &middot; Prism Data</span>
+                <h1 class="hero-title">
+                    Evaluate Credit Risk<br />
+                    with <span class="text-accent">Cash Flow<br />Underwriting</span>
+                </h1>
+                <p class="hero-subtitle">A data-driven alternative to traditional credit scoring using NLP and
+                    machine learning on everyday bank transactions to build a fairer financial system.</p>
+                <div class="hero-actions">
+                    <a href="#introduction" class="btn btn-primary">Learn More</a>
+                    <a href="https://github.com/harisdsc/DSC180B" target="_blank" rel="noopener noreferrer"
+                        class="btn btn-ghost">View on GitHub <svg width="14" height="14" viewBox="0 0 14 14"
+                            fill="none">
+                            <path d="M1 13L13 1M13 1H3M13 1V11" stroke="currentColor" stroke-width="1.5"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg></a>
+                </div>
+            </div>
+            <div class="hero-right">
+                <div class="hero-card-stack">
+                    <div class="hero-card hero-card-score">
+                        <div class="hero-card-label">Cash Score</div>
+                        <div class="hero-card-score-row">
+                            <span class="hero-card-number">7.54</span>
+                            <span class="hero-card-out-of">/ 10</span>
+                        </div>
+                        <div class="hero-card-bar-track">
+                            <div class="hero-card-bar-fill" style="width:75.4%"></div>
+                        </div>
+                        <div class="hero-card-bottom">
+                            <span class="hero-card-status hero-card-status-good">Low Risk</span>
+                            <span class="hero-card-detail">Based on transaction analysis</span>
+                        </div>
+                    </div>
+                    <div class="hero-card hero-card-stats">
+                        <div class="hero-card-label">Transaction Insights</div>
+                        <div class="hero-card-stat-grid">
+                            <div>
+                                <span class="hero-stat-val">$4,230</span>
+                                <span class="hero-stat-label">Monthly Income</span>
+                            </div>
+                            <div>
+                                <span class="hero-stat-val">92%</span>
+                                <span class="hero-stat-label">Income Stability</span>
+                            </div>
+                            <div>
+                                <span class="hero-stat-val">0.43</span>
+                                <span class="hero-stat-label">Spend Ratio</span>
+                            </div>
+                            <div>
+                                <span class="hero-stat-val">12</span>
+                                <span class="hero-stat-label">Months Observed</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Banner -->
+    <section class="stats-banner">
+        <div class="container">
+            <div class="stats-row">
+                <div class="stat-item">
+                    <span class="stat-number">45M+</span>
+                    <span class="stat-label">"Credit Invisible" Americans</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                    <span class="stat-number">30%</span>
+                    <span class="stat-label">Predictive Lift Over Traditional Scores</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                    <span class="stat-number">6.4M+</span>
+                    <span class="stat-label">Transaction Records Analyzed</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Introduction -->
+    <section class="section" id="introduction">
+        <div class="container">
+            <span class="section-tag">Introduction</span>
+            <h2 class="section-title">Why Traditional Credit Scoring<br />Falls Short</h2>
+            <div class="intro-grid">
+                <div class="intro-text">
+                    <p>Credit scores play a critical role in shaping financial opportunities, influencing access to
+                        loans, credit cards, and housing. However, traditional systems are inherently biased toward
+                        individuals who already have established credit histories.</p>
+                    <p>This creates a structural disadvantage for the <strong>credit-invisible</strong> (young
+                        adults, recent immigrants, and low-income backgrounds) who may have limited or
+                        no prior credit activity.</p>
+                </div>
+                <div class="intro-text">
+                    <p>Most people, however, maintain active bank accounts containing valuable information about their
+                        real-time income, spending habits, and financial stability.</p>
+                    <p><strong>Cash-flow underwriting</strong> leverages this everyday transaction data to evaluate
+                        borrowers more fairly. Our project applies NLP and machine learning to transaction records,
+                        creating a "Cash Score" that predicts credit risk without relying on traditional credit history.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Feature Cards (Prism-style) -->
+            <div class="feature-cards">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path
+                                d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <h3>Fairer Assessments</h3>
+                    <p>Evaluate creditworthiness based on real financial behavior rather than repayment history alone.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path
+                                d="M16 8V16M12 11V16M8 14V16M6 20H18C19.1046 20 20 19.1046 20 18V6C20 4.89543 19.1046 4 18 4H6C4.89543 4 4 4.89543 4 6V18C4 19.1046 4.89543 20 6 20Z"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <h3>Data-Driven Insights</h3>
+                    <p>Analyze spending, income, and balance dynamics across multiple time windows to build predictive
+                        features.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path
+                                d="M12 15V17M6 21H18C19.1046 21 20 20.1046 20 19V13C20 11.8954 19.1046 11 18 11H6C4.89543 11 4 11.8954 4 13V19C4 20.1046 4.89543 21 6 21ZM16 11V7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7V11H16Z"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <h3>Privacy First</h3>
+                    <p>All datasets are de-identified. Analysis focuses on behavioral patterns, not individual identity.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Data -->
+    <section class="section section-tinted" id="data">
+        <div class="container">
+            <span class="section-tag">Data</span>
+            <h2 class="section-title">Hierarchical Financial Records</h2>
+            <p class="section-desc"></p>
+
+            <div class="data-grid">
+                <div class="data-card">
+                    <div class="data-card-top">
+                        <h3>Consumer Data</h3>
+                        <span class="pill">15,000 rows</span>
+                    </div>
+                    <p>Consumer-level information including evaluation dates and delinquency outcomes, with 3,000 held
+                        out for evaluation.</p>
+                </div>
+                <div class="data-card">
+                    <div class="data-card-top">
+                        <h3>Account Data</h3>
+                        <span class="pill">24,466 rows</span>
+                    </div>
+                    <p>Account-level details including account types, balance dates, and balance amounts for each
+                        consumer.</p>
+                </div>
+                <div class="data-card">
+                    <div class="data-card-top">
+                        <h3>Transaction Data</h3>
+                        <span class="pill">6.4M rows</span>
+                    </div>
+                    <p>Transaction-level records with categories, amounts, credit/debit indicators, and posting dates.
+                    </p>
+                </div>
+                <div class="data-card">
+                    <div class="data-card-top">
+                        <h3>Category Map</h3>
+                        <span class="pill">50 categories</span>
+                    </div>
+                    <p>A mapping from integer category codes to human-readable transaction category names.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Methods -->
+    <section class="section" id="methods">
+        <div class="container">
+            <span class="section-tag">Methods</span>
+            <h2 class="section-title">Data Wrangling & Feature Engineering</h2>
+            <p class="section-desc"></p>
+
+            <div class="pipeline">
+                <div class="pipeline-step">
+                    <div class="pipeline-marker">
+                        <span class="pipeline-num">01</span>
+                    </div>
+                    <div class="pipeline-content">
+                        <h3>Data Cleaning</h3>
+                        <p></p>
+                        <details class="accordion accordion-sm">
+                            <summary class="accordion-trigger">
+                                <span>Technical Details</span>
+                                <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 20 20" fill="none">
+                                    <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="1.5"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                            </summary>
+                            <div class="accordion-content">
+                                <ul>
+                                    <li>Held out ~3,000 consumers with null delinquency labels for out-of-sample
+                                        evaluation</li>
+                                    <li>Removed credit_score variable to avoid biasing toward traditional scoring</li>
+                                    <li>Filtered transactions occurring after each consumer's evaluation date</li>
+                                    <li>Applied minimum data sufficiency criteria: at least 1 linked account, 3 months
+                                        of history, and identifiable recurring income</li>
+                                </ul>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+
+                <div class="pipeline-step">
+                    <div class="pipeline-marker">
+                        <span class="pipeline-num">02</span>
+                    </div>
+                    <div class="pipeline-content">
+                        <h3>Feature Engineering</h3>
+                        <p></p>
+                        <details class="accordion accordion-sm">
+                            <summary class="accordion-trigger">
+                                <span>Feature Categories</span>
+                                <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 20 20" fill="none">
+                                    <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="1.5"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                            </summary>
+                            <div class="accordion-content">
+                                <ul>
+                                    <li><strong>Account-Level:</strong> Total/average balances, account diversity,
+                                        liquidity indicators, negative balance exposure, wealth tier flags</li>
+                                    <li><strong>Balance Dynamics:</strong> Reconstructed running balances capturing
+                                        volatility, daily changes, drawdowns, balance trends (30/90/365 days), overdraft
+                                        flags</li>
+                                    <li><strong>Income:</strong> Total/average monthly income, income volatility, number
+                                        of sources, regularity, recency of income events</li>
+                                    <li><strong>Spending Ratios:</strong> Category-level spend-to-income ratios across
+                                        1, 3, 6, and 9-month windows</li>
+                                </ul>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+
+                <div class="pipeline-step">
+                    <div class="pipeline-marker">
+                        <span class="pipeline-num">03</span>
+                    </div>
+                    <div class="pipeline-content">
+                        <h3>Feature Selection</h3>
+                        <p></p>
+                    </div>
+                </div>
+
+                <div class="pipeline-step">
+                    <div class="pipeline-marker">
+                        <span class="pipeline-num">04</span>
+                    </div>
+                    <div class="pipeline-content">
+                        <h3>Model Training</h3>
+                        <p></p>
+                        <details class="accordion accordion-sm">
+                            <summary class="accordion-trigger">
+                                <span>Model Details</span>
+                                <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 20 20" fill="none">
+                                    <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="1.5"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                            </summary>
+                            <div class="accordion-content">
+                                <p><strong>Logistic Regression:</strong> 80-20 train-test split, StandardScaler
+                                    preprocessing, class balance weighting. Evaluated with AUC-ROC.</p>
+                                <p><strong>XGBoost:</strong> Gradient boosted decision trees with grid search
+                                    cross-validation. Uses scale_pos_weight for class imbalance. Evaluated on AUC-ROC
+                                    and per-sample latency.</p>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Results -->
+    <section class="section section-tinted" id="results">
+        <div class="container">
+            <span class="section-tag">Results</span>
+            <h2 class="section-title">Results &amp; Discussion</h2>
+            <p class="section-desc"></p>
+
+            <div class="results-grid">
+                <div class="result-card">
+                    <div class="result-card-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path
+                                d="M16 8V16M12 11V16M8 14V16M6 20H18C19.1046 20 20 19.1046 20 18V6C20 4.89543 19.1046 4 18 4H6C4.89543 4 4 4.89543 4 6V18C4 19.1046 4.89543 20 6 20Z"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <h3>Model Performance</h3>
+                    <p>AUC-ROC scores for train and test sets, latency benchmarks, and comparative analysis.</p>
+                    <div class="placeholder">
+                        <span></span>
+                    </div>
+                </div>
+                <div class="result-card">
+                    <div class="result-card-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path
+                                d="M9 19V13C9 11.8954 9.89543 11 11 11H13C14.1046 11 15 11.8954 15 13V19M9 19H15M9 19H5L3 19C3 19 3 17 3 15M15 19H19L21 19C21 19 21 17 21 15M3 15V11L12 3L21 11V15"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <h3>Cash Score Distribution</h3>
+                    <p>Distribution of generated Cash Scores (0-10 scale) across the consumer population.</p>
+                    <div class="placeholder">
+                        <span></span>
+                    </div>
+                </div>
+            </div>
+            <details class="accordion">
+                <summary class="accordion-trigger">
+                    <span>Discussion</span>
+                    <svg class="accordion-chevron" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                </summary>
+                <div class="accordion-content">
+                    <div class="vocab-grid">
+                        <div class="vocab-item">
+                            <dt></dt>
+                            <dd></dd>
+                        </div>
+                    </div>
+                </div>
+            </details>
+        </div>
+    </section>
+
+    <!-- Conclusion -->
+    <section class="section" id="conclusion">
+        <div class="container">
+            <div class="conclusion-block">
+                <span class="section-tag">Conclusion</span>
+                <h2 class="section-title">Conclusion</h2>
+                <p></p>
+                <p></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team -->
+    <section class="section section-tinted" id="team">
+        <div class="container">
+            <span class="section-tag">Our Team</span>
+            <h2 class="section-title">Contributors</h2>
+            <div class="team-grid">
+                <div class="team-card">
+                    <div class="team-avatar">AM</div>
+                    <h3>Ada Mo</h3>
+                    <p></p>
+                </div>
+                <div class="team-card">
+                    <div class="team-avatar">BC</div>
+                    <h3>Brighton Chan</h3>
+                    <p></p>
+                </div>
+                <div class="team-card">
+                    <div class="team-avatar">HS</div>
+                    <h3>Haris Saif</h3>
+                    <p></p>
+                </div>
+                <div class="team-card">
+                    <div class="team-avatar">KC</div>
+                    <h3>Kyle Choi</h3>
+                    <p></p>
+                </div>
+            </div>
+            <div class="mentors-row">
+                <p>Mentors: <strong>Kyle Nero</strong> &amp; <strong>Daniel Mathew</strong> &mdash; Prism Data</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container footer-inner">
+            <div class="footer-brand">
+                <svg class="footer-logo-icon" width="24" height="24" viewBox="0 0 28 28" fill="none"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <rect width="28" height="28" rx="8" fill="#0D9373" />
+                    <path d="M8 18V14C8 10.6863 10.6863 8 14 8C17.3137 8 20 10.6863 20 14V18" stroke="white"
+                        stroke-width="2.5" stroke-linecap="round" />
+                    <circle cx="14" cy="18" r="2" fill="white" />
+                </svg>
+                <span>CashFlow Credit</span>
+            </div>
+            <div class="footer-center">
+                <p>Evaluating Credit Risk Through Transaction-Level Cash Flows</p>
+                <p class="footer-sub">DSC 180B &middot; UC San Diego &middot; 2025</p>
+            </div>
+            <div class="footer-links">
+                <a href="https://github.com/harisdsc/DSC180B" target="_blank" rel="noopener noreferrer">GitHub</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
