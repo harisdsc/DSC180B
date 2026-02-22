@@ -7,7 +7,9 @@ from src.features.brighton.account_feats import build_account_features
 from src.features.brighton.income_feats import build_income_features
 from src.features.brighton.running_balance import build_running_balance
 from src.features.brighton.balance_feats import build_balance_dynamics
+from src.features.kyle.time_features import create_time_features
 import pandas as pd
+import time
 import os
 
 def run_pipeline():
@@ -22,6 +24,8 @@ def run_pipeline():
     consDF, acctDF, trxnDF, cat_map = load_data()
 
     features = consDF[['prism_consumer_id']]
+
+    features_start = time.time()
 
     # Income features
     print("Generating income features...")
@@ -50,6 +54,11 @@ def run_pipeline():
     print("Generating account features...")
     account_df_brighton = build_account_features(acctDF)
     features = features.merge(account_df_brighton, on='prism_consumer_id', how='left')
+
+    # Time features
+    # print("Generating time features...")
+    # time_df_kyle = create_time_features(trxnDF)
+    # features = features.merge(time_df_kyle, on='prism_consumer_id', how='left')
 
     # Category Features
     # print("Generating category features...")
