@@ -7,7 +7,7 @@ def weekly(df_input):
     
     df['day_name'] = df['posted_date'].dt.day_name().str.lower()
     df['dom'] = df['posted_date'].dt.day
-
+    df['signed_amount'] = np.where(df['credit_or_debit'] == 'DEBIT', -df['amount'], df['amount'])
     # Day of week averages
     day_avg = df.groupby(['prism_consumer_id', 'category', 'day_name'])['signed_amount'].mean().reset_index()
     weekly_pivot = day_avg.pivot_table(
