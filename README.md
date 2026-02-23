@@ -27,3 +27,7 @@
 * `pipeline` : Load raw data, generate features (income, balance, transactions), and save processed data to `data/features.pqt` (called within train.py)
 
 ---
+
+Artifacts Repo: https://github.com/harisdsc/DSC180B-artifacts
+
+Project Website: https://harisdsc.github.io/DSC180B/
