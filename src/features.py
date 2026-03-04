@@ -157,7 +157,50 @@ def add_knn_error_features(X_train, y_train, X_test, train_probs):
     X_test['dist_to_hard_neg'] = dist_test.mean(axis=1)
     
     return X_train, X_test
+def build_spending_volatility_and_stress(history_subset):
+    df = history_subset.copy()
+    
+    # 1. Spending Volatility (from Iteration 1 - AUC 0.8162)
+    df['daily_abs_change'] = df.groupby('prism_consumer_id')['running_balance'].diff().abs()
+    vola = df.groupby('prism_consumer_id')['daily_abs_change'].std().reset_index(name='spending_volatility')
+    
+    # 2. Liquidity Stress Ratio
+    overdrafts = df[df['category'] == 'OVERDRAFT'].groupby('prism_consumer_id').size().reset_index(name='overdraft_count')
+    total_debits = df[df['credit_or_debit'] == 'DEBIT'].groupby('prism_consumer_id').size().reset_index(name='total_debits')
+    stress = pd.merge(overdrafts, total_debits, on='prism_consumer_id', how='right').fillna(0)
+    stress['liquidity_stress_ratio'] = stress['overdraft_count'] / (stress['total_debits'] + 1e-6)
+    
+    final_feats = pd.merge(vola, stress[['prism_consumer_id', 'liquidity_stress_ratio']], on='prism_consumer_id', how='outer')
+    return final_feats
 
+def build_monthly_velocity(history_subset):
+    # From Iteration 16 - AUC 0.8213
+    df = history_subset.copy()
+    df['transaction_month'] = df['posted_date'].dt.to_period('M')
+    txn_freq = df.groupby(['prism_consumer_id', 'transaction_month']).size().reset_index(name='monthly_txn_count')
+    avg_txn_freq = txn_freq.groupby('prism_consumer_id')['monthly_txn_count'].mean().reset_index(name='avg_txn_freq_per_month')
+    return avg_txn_freq
+
+def build_transaction_ratios(history_subset, acct_df):
+    df = history_subset.copy()
+    
+    # Count total transactions
+    txn_count = df.groupby('prism_consumer_id').size().reset_index(name='total_transactions')
+    
+    # Calculate how many days we actually observed this consumer
+    lifespan = df.groupby('prism_consumer_id')['posted_date'].agg(lambda x: (x.max() - x.min()).days + 1).reset_index(name='days_observed')
+    
+    # Calculate the normalized Daily Transaction Rate
+    merged = txn_count.merge(lifespan, on='prism_consumer_id')
+    merged['txns_per_day'] = merged['total_transactions'] / merged['days_observed']
+    
+    # Merge with balance
+    merged = merged.merge(acct_df[['prism_consumer_id', 'balance']], on='prism_consumer_id', how='left')
+    
+    # Calculate the time-invariant ratio!
+    merged['txn_rate_to_balance_ratio'] = (merged['txns_per_day'] / (merged['balance'] + 1e-6)).fillna(0)
+    
+    return merged[['prism_consumer_id', 'txn_rate_to_balance_ratio']]
 
 def extract_ALL_features(history_subset, acct_df):
     print("Extracting full habit matrix...")
@@ -171,72 +214,59 @@ def extract_ALL_features(history_subset, acct_df):
     bnpl = build_BNPL_utilization(history_subset)
     global_tx_feats = build_global_tx_features(history_subset)
     
+    # --- ADD THE NEW AI DISCOVERIES HERE ---
+    volatility_feats = build_spending_volatility_and_stress(history_subset)
+    velocity_feats = build_monthly_velocity(history_subset)
+    ratio_feats = build_transaction_ratios(history_subset, acct_df)
+    
     features_df = base_features.copy()
-    all_new_dfs = (agg_bal, pivot_bal, *income_feats, *balance_feats, magnitude_feats, drawdown, cash, bnpl, global_tx_feats) 
+    
+    # Include the new features in the join tuple
+    all_new_dfs = (
+        agg_bal, pivot_bal, *income_feats, *balance_feats, 
+        magnitude_feats, drawdown, cash, bnpl, global_tx_feats,
+        volatility_feats, velocity_feats, ratio_feats
+    ) 
     
     for df in all_new_dfs:
         if 'prism_consumer_id' in df.columns:
             df = df.set_index('prism_consumer_id')
         features_df = features_df.join(df, how='left')
+        
     features_df.columns = features_df.columns.astype(str)
     
-    novel_functions = []
-    for idx, func in enumerate(novel_functions, 1):
-        try:
-            novel_feats = func(history_subset, acct_df)
-            if 'prism_consumer_id' in novel_feats.columns:
-                novel_feats = novel_feats.set_index('prism_consumer_id')
-            features_df = features_df.join(novel_feats, how='left')
-        except Exception as e:
-            print(f"Novel feature {idx} failed: {e}")
-            
-    # --- AUTO INJECTED ---
     try:
-        novel_feats = build_novel_feature_1(history_subset, acct_df)
+        novel_feats = build_novel_feature_8(history_subset, acct_df)
         if 'prism_consumer_id' in novel_feats.columns:
             novel_feats = novel_feats.set_index('prism_consumer_id')
         features_df = features_df.join(novel_feats, how='left')
     except Exception as e:
-        print(f"Novel feature 1 failed: {e}")
-    # ---------------------
-    # --- AUTO INJECTED ---
-    try:
-        novel_feats = build_novel_feature_1(history_subset, acct_df)
-        if 'prism_consumer_id' in novel_feats.columns:
-            novel_feats = novel_feats.set_index('prism_consumer_id')
-        features_df = features_df.join(novel_feats, how='left')
-    except Exception as e:
-        print(f"Novel feature 1 failed: {e}")
-    # ---------------------
+        print(f"Novel feature 8 failed: {e}")
     return features_df.reset_index()
 
-def build_novel_feature_1(history_subset, acct_df):
+
+import pandas as pd
+import numpy as np
+
+def build_novel_feature_8(history_subset, acct_df):
     df = history_subset.copy()
     
-    # Calculate average transaction amount per consumer
-    avg_amount = df.groupby('prism_consumer_id')['amount'].mean().reset_index(name='avg_transaction_amount')
+    # Convert posted_date to datetime
+    df['transaction_date'] = pd.to_datetime(df['posted_date'])
     
-    # Merge with account balance data
-    merged_df = avg_amount.merge(acct_df[['prism_consumer_id', 'balance']], on='prism_consumer_id', how='left')
+    # Calculate the time difference between transactions for each consumer
+    df_sorted = df.sort_values(['prism_consumer_id', 'transaction_date'])
+    df_sorted['prev_transaction_date'] = df_sorted.groupby('prism_consumer_id')['transaction_date'].shift(1)
+    df_sorted['time_since_last_tx'] = (df_sorted['transaction_date'] - df_sorted['prev_transaction_date']).dt.days.fillna(0)
     
-    # Calculate transaction to balance ratio
-    merged_df['transaction_to_balance_ratio'] = (merged_df['avg_transaction_amount'] / (merged_df['balance'] + 1e-6)).fillna(0)
+    # Calculate the average time between transactions for each consumer
+    avg_time_between_tx = df_sorted.groupby('prism_consumer_id')['time_since_last_tx'].mean().reset_index(name='avg_days_between_transactions')
     
-    # Return the new feature as a DataFrame
-    return merged_df[['prism_consumer_id', 'transaction_to_balance_ratio']]
-
-
-def build_novel_feature_1(history_subset, acct_df):
-    df = history_subset.copy()
+    # Merge with account balances to include balance information
+    merged_df = avg_time_between_tx.merge(acct_df[['prism_consumer_id', 'balance']], on='prism_consumer_id', how='left').fillna(0)
     
-    # Calculate the total number of transactions per consumer
-    txn_count = df.groupby('prism_consumer_id').size().reset_index(name='total_transactions')
+    # Calculate a new feature: ratio of average time between transactions to account balance
+    # Apply a non-linear transformation using exponential decay function to capture diminishing returns
+    merged_df['time_to_balance_ratio_exp_decay'] = np.exp(-merged_df['avg_days_between_transactions'] / (merged_df['balance'] + 1e-6)).fillna(0)
     
-    # Merge with account balance data
-    merged_df = txn_count.merge(acct_df[['prism_consumer_id', 'balance']], on='prism_consumer_id', how='left')
-    
-    # Calculate transactions per balance ratio
-    merged_df['transactions_per_balance_ratio'] = (merged_df['total_transactions'] / (merged_df['balance'] + 1e-6)).fillna(0)
-    
-    # Return the new feature as a DataFrame
-    return merged_df[['prism_consumer_id', 'transactions_per_balance_ratio']]
+    return merged_df[['prism_consumer_id', 'time_to_balance_ratio_exp_decay']]

@@ -1,6 +1,6 @@
 import pandas as pd
 
-def load_and_clean_data(data_path="../data"):
+def load_and_clean_data(data_path="data"):
     print("Loading datasets...")
     catmap = pd.read_csv(f"{data_path}/catmap.csv")
     consDF = pd.read_parquet(f"{data_path}/Consumer.pqt").drop(columns=["credit_score"], errors='ignore')
