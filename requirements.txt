@@ -1,0 +1,9 @@
+pandas
+pyarrow
+fastparquet
+scikit-learn
+xgboost
+matplotlib
+numpy
+PyWavelets
+shap
