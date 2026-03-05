@@ -10,22 +10,73 @@ from sklearn.metrics import roc_curve
 from src.features import calculate_running_balance, extract_ALL_features, add_knn_error_features
 
 # --- FCRA REASON CODE DICTIONARY ---
-# This translates raw feature names into legally compliant, interpretable English.
+# Exact match overrides
 FCRA_MAPPING = {
-    'avg_balance': 'Average account balance is insufficient.',
-    'min_balance': 'Account balance dropped to critically low levels.',
+    'avg_balance': 'Average account balance is critically low.',
+    'min_balance': 'Account balance dropped to insufficient levels.',
+    'max_balance': 'Peak account balances are insufficient to support outflow.',
     'stress_outflow_ratio': 'High proportion of stress-related outflows (e.g., overdrafts, fees).',
     'wealth_transfer_ratio': 'Insufficient wealth accumulation or investment transfers.',
-    'BNPL_utilization_pct': 'High reliance on Buy-Now-Pay-Later (BNPL) debt services.',
-    'cash_utilization_pct': 'High reliance on ATM cash withdrawals.',
-    'dist_to_hard_neg': 'Overall transaction behavior matches historical high-risk profiles.',
+    'BNPL_utilization_pct': 'High reliance on short-term Buy-Now-Pay-Later (BNPL) debt.',
+    'cash_utilization_pct': 'High reliance on ATM cash withdrawals relative to electronic payments.',
+    'dist_to_hard_neg': 'Overall transactional behavior matches historical high-risk profiles.',
     'checking_to_savings_ratio': 'Low savings liquidity relative to checking outflows.',
     'txn_rate_to_balance_ratio': 'High daily transaction volume relative to available liquidity.',
     'avg_monthly_income': 'Identified monthly income deposits are insufficient.',
     'spending_volatility': 'High daily volatility in account balance.',
     'liquidity_stress_ratio': 'High frequency of overdrafts relative to total debits.',
-    'avg_txn_freq_per_month': 'Monthly transaction frequency does not align with expected baseline.'
+    'avg_txn_freq_per_month': 'Monthly transaction frequency does not align with expected baseline.',
+    'num_accounts': 'Total number of active accounts is low.',
+    'checking_balance': 'Checking account balance is insufficient.',
+    'savings_balance': 'Savings account liquidity is critically low.',
+    'total_outflows': 'Total monthly outflows exceed acceptable thresholds.',
+    'cash_debits': 'High absolute volume of cash withdrawals.',
+    'BNPL_debits': 'High absolute spending on Buy-Now-Pay-Later (BNPL) services.',
+    'mean_daily_change': 'Average daily balance change indicates a negative trend.',
+    'total_abs_balance_change': 'Account balance exhibits high overall fluctuation.',
+    'txns_per_day': 'Daily transaction frequency is excessively high.'
 }
+
+# Dynamic mapping for generic categories
+CATEGORY_MAPPING = {
+    'BNPL': 'High utilization of Buy-Now-Pay-Later services',
+    'GAMBLING': 'Excessive transactions flagged as gaming/gambling',
+    'OVERDRAFT': 'Frequent overdraft or non-sufficient fund fees',
+    'ACCOUNT_FEES': 'High frequency of banking account fees',
+    'SMALL_DOLLAR_ADVANCE': 'Reliance on short-term/payday cash advances',
+    'CREDIT_CARD_PAYMENT': 'Elevated credit card debt obligations',
+    'DEBT': 'High volume of external debt servicing',
+    'AUTO_LOAN': 'Elevated automotive loan obligations',
+    'MORTGAGE': 'High housing/mortgage obligations relative to inflows',
+    'RENT': 'High rental obligations relative to inflows',
+    'LOAN': 'Elevated general loan obligations',
+    'ATM_CASH': 'High reliance on ATM cash withdrawals',
+    'ENTERTAINMENT': 'High discretionary spending on entertainment',
+    'FOOD_AND_BEVERAGE': 'High discretionary spending on dining and beverages',
+    'UTILITIES': 'High utility payment obligations',
+    'HEALTHCARE': 'Elevated healthcare-related expenses',
+    'INSURANCE': 'High insurance premium obligations',
+    'TAX': 'Significant tax-related payments or obligations',
+    'PERSONAL_CARE': 'High discretionary spending on personal care',
+    'EDUCATION': 'Elevated education or tuition-related expenses',
+    'SUBSCRIPTIONS': 'High volume of recurring subscription payments',
+    'TRANSPORTATION': 'Elevated transportation or transit expenses'
+}
+
+def generate_dynamic_reason(feature_name):
+    # 1. Check for an exact dictionary match first
+    if feature_name in FCRA_MAPPING:
+        return FCRA_MAPPING[feature_name]
+        
+    # 2. Fuzzy match for specific risky categories (e.g., cat_BNPL_dom_25)
+    for cat_key, explanation in CATEGORY_MAPPING.items():
+        if cat_key in feature_name:
+            return explanation + "."
+            
+    # 3. Ultimate Fallback for unmapped behavioral features
+    # Clean up the variable name (e.g., "prop_count_cat_ENTERTAINMENT" -> "Entertainment")
+    clean_name = feature_name.replace('cat_', '').replace('prop_count_', '').replace('_cwt_weekly', '').split('_dom_')[0].replace('_', ' ').title()
+    return f"Elevated risk flagged in transactional category: {clean_name}."
 
 def load_all_data(data_path):
     print("Loading all data (including unlabeled test cases)...")
@@ -64,8 +115,12 @@ def main():
     print("Extracting full habit matrix for the entire universe...")
     features_df = extract_ALL_features(history_all, acctDF)
     
-    # Merge ONLY the credit score back in (DQ_TARGET is already in features_df now)
-    master_df = features_df.merge(consDF[['prism_consumer_id', 'credit_score']], on='prism_consumer_id', how='left')
+    # COLLAPSE TO 1 ROW PER CONSUMER TO FIX ROW EXPLOSION
+    features_df = features_df.groupby('prism_consumer_id').max().reset_index()
+    
+    # DEDUP CONSDF BEFORE MERGE TO PREVENT RE-EXPLOSION
+    cons_dedup = consDF[['prism_consumer_id', 'credit_score']].drop_duplicates(subset=['prism_consumer_id'])
+    master_df = features_df.merge(cons_dedup, on='prism_consumer_id', how='left')
     
     # Split into Labeled (Train) and All (Predict)
     labeled_mask = master_df['DQ_TARGET'].notna()
@@ -81,7 +136,7 @@ def main():
     pilot_model = xgb.XGBClassifier(n_estimators=100, max_depth=3, n_jobs=-1)
     cv_preds = cross_val_predict(pilot_model, X_train_full, y_train_full, cv=5, method='predict_proba')[:, 1]
     
-    # --- DYNAMIC THRESHOLDING (Added to match your updated architecture) ---
+    # --- DYNAMIC THRESHOLDING ---
     fpr, tpr, thresholds = roc_curve(y_train_full, cv_preds)
     best_threshold = thresholds[np.argmax(tpr - fpr)]
     
@@ -146,7 +201,7 @@ def main():
             
             fcra_reasons = []
             for feat in top_3_features:
-                reason = FCRA_MAPPING.get(feat, f"Behavioral flag triggered by: {feat}")
+                reason = generate_dynamic_reason(feat)
                 fcra_reasons.append(reason)
                 
             reasons_list.append(" | ".join(fcra_reasons))
@@ -160,7 +215,7 @@ def main():
     final_output = master_df[['prism_consumer_id', 'DQ_TARGET', 'credit_score', 'Approval_Score_1000', 'FCRA_Reason_Codes']]
     final_output.to_csv("Final_Credit_Decisions.csv", index=False)
     print("\n✅ Success! Final decisions saved to 'Final_Credit_Decisions.csv'")
-    print(final_output.head(10))
+    print(final_output.head(10).to_string())
 
 if __name__ == "__main__":
     main()
