@@ -7,6 +7,7 @@ from src.data_loader import load_and_clean_data
 from src.features import calculate_running_balance, extract_ALL_features
 from src.model import train_easy_ensemble
 from src.evaluation import evaluate_and_plot
+from src.logistics import train_logistic_ensemble
 
 def main():
     pipeline_start_time = time.time()
@@ -50,6 +51,7 @@ def main():
     print(f"Final feature space size: {train_df_pruned.shape[1]} columns.")
     y_holdout = test_df_pruned['DQ_TARGET']
 
+    #best_threshold, final_test_probs = train_logistic_ensemble(train_df_pruned, test_df_pruned, num_iterations=20)
     best_threshold, final_test_probs = train_easy_ensemble(
         train_df_pruned, test_df_pruned, num_iterations=20
     )

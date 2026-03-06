@@ -1,8 +1,6 @@
 import pandas as pd
 import numpy as np
 import pywt
-from sklearn.neighbors import NearestNeighbors
-from sklearn.preprocessing import StandardScaler
 
 def calculate_running_balance(t_df, a_df):
     t_df = t_df.copy()
@@ -129,52 +127,18 @@ def build_BNPL_utilization(history_subset):
     }).reset_index()
     return BNPL_df
 
-def add_knn_error_features(X_train, y_train, X_test, train_probs):
-    X_test = X_test.reindex(columns=X_train.columns, fill_value=0)
-
-    hard_negatives = X_train[(y_train == 0) & (train_probs > 0.5)].copy()
-    
-    if hard_negatives.empty:
-        X_train['dist_to_hard_neg'] = 0
-        X_test['dist_to_hard_neg'] = 0
-        return X_train, X_test
-
-    X_train = X_train.fillna(0)
-    X_test = X_test.fillna(0)
-
-    scaler = StandardScaler()
-    hn_scaled = scaler.fit_transform(hard_negatives.fillna(0))
-    train_scaled = scaler.transform(X_train)
-    test_scaled = scaler.transform(X_test)
-
-    knn = NearestNeighbors(n_neighbors=5, metric='euclidean')
-    knn.fit(hn_scaled)
-
-    dist_train, _ = knn.kneighbors(train_scaled)
-    dist_test, _ = knn.kneighbors(test_scaled)
-
-    X_train['dist_to_hard_neg'] = dist_train.mean(axis=1)
-    X_test['dist_to_hard_neg'] = dist_test.mean(axis=1)
-    
-    return X_train, X_test
 def build_spending_volatility_and_stress(history_subset):
     df = history_subset.copy()
-    
-    # 1. Spending Volatility (from Iteration 1 - AUC 0.8162)
     df['daily_abs_change'] = df.groupby('prism_consumer_id')['running_balance'].diff().abs()
     vola = df.groupby('prism_consumer_id')['daily_abs_change'].std().reset_index(name='spending_volatility')
-    
-    # 2. Liquidity Stress Ratio
     overdrafts = df[df['category'] == 'OVERDRAFT'].groupby('prism_consumer_id').size().reset_index(name='overdraft_count')
     total_debits = df[df['credit_or_debit'] == 'DEBIT'].groupby('prism_consumer_id').size().reset_index(name='total_debits')
     stress = pd.merge(overdrafts, total_debits, on='prism_consumer_id', how='right').fillna(0)
     stress['liquidity_stress_ratio'] = stress['overdraft_count'] / (stress['total_debits'] + 1e-6)
-    
     final_feats = pd.merge(vola, stress[['prism_consumer_id', 'liquidity_stress_ratio']], on='prism_consumer_id', how='outer')
     return final_feats
 
 def build_monthly_velocity(history_subset):
-    # From Iteration 16 - AUC 0.8213
     df = history_subset.copy()
     df['transaction_month'] = df['posted_date'].dt.to_period('M')
     txn_freq = df.groupby(['prism_consumer_id', 'transaction_month']).size().reset_index(name='monthly_txn_count')
@@ -183,24 +147,126 @@ def build_monthly_velocity(history_subset):
 
 def build_transaction_ratios(history_subset, acct_df):
     df = history_subset.copy()
-    
-    # Count total transactions
     txn_count = df.groupby('prism_consumer_id').size().reset_index(name='total_transactions')
-    
-    # Calculate how many days we actually observed this consumer
     lifespan = df.groupby('prism_consumer_id')['posted_date'].agg(lambda x: (x.max() - x.min()).days + 1).reset_index(name='days_observed')
-    
-    # Calculate the normalized Daily Transaction Rate
     merged = txn_count.merge(lifespan, on='prism_consumer_id')
     merged['txns_per_day'] = merged['total_transactions'] / merged['days_observed']
-    
-    # Merge with balance
     merged = merged.merge(acct_df[['prism_consumer_id', 'balance']], on='prism_consumer_id', how='left')
-    
-    # Calculate the time-invariant ratio!
     merged['txn_rate_to_balance_ratio'] = (merged['txns_per_day'] / (merged['balance'] + 1e-6)).fillna(0)
-    
     return merged[['prism_consumer_id', 'txn_rate_to_balance_ratio']]
+
+# --- NOVEL AGENT DISCOVERED FEATURES ---
+
+def build_nonlinear_ratio(history_subset, acct_df):
+    df = history_subset.copy()
+    df['balance_to_amount_ratio'] = (np.abs(df['running_balance']) / (np.abs(df['amount']) + 1e-6)).fillna(0)
+    df['nonlinear_transformed_ratio'] = np.cos(np.tanh(df['balance_to_amount_ratio'] * 2) * np.pi).fillna(0)
+    result_df = df.groupby('prism_consumer_id')['nonlinear_transformed_ratio'].mean().reset_index()
+    return result_df[['prism_consumer_id', 'nonlinear_transformed_ratio']]
+
+def build_stress_intensity(history_subset, acct_df):
+    if history_subset.empty or acct_df.empty:
+        return pd.DataFrame(columns=['prism_consumer_id', 'stress_intensity_asset_ratio'])
+        
+    df = history_subset.copy()
+    a_df = acct_df.copy()
+    df['prism_consumer_id'] = df['prism_consumer_id'].astype(str)
+    a_df['prism_consumer_id'] = a_df['prism_consumer_id'].astype(str)
+    
+    stress_mask = df['running_balance'] <= 0
+    stress_agg = df[stress_mask].groupby('prism_consumer_id')['signed_amount'].agg(mean_stress_spending='mean').reset_index()
+    stress_agg['abs_stress'] = np.abs(stress_agg['mean_stress_spending'])
+    
+    asset_agg = a_df.groupby('prism_consumer_id')['balance'].agg(avg_asset_buffer='mean').reset_index()
+    unique_consumers = df['prism_consumer_id'].unique()
+    
+    result = pd.merge(pd.DataFrame({'prism_consumer_id': unique_consumers}), stress_agg[['prism_consumer_id', 'abs_stress']], on='prism_consumer_id', how='left')
+    result['abs_stress'] = result['abs_stress'].fillna(0.0)
+    
+    merged_df = pd.merge(result, asset_agg, on='prism_consumer_id', how='left')
+    merged_df['avg_asset_buffer'] = merged_df['avg_asset_buffer'].fillna(1.0)
+    merged_df['raw_intensity_ratio'] = merged_df['abs_stress'] / (merged_df['avg_asset_buffer'] + 1e-6)
+    merged_df['stress_intensity_asset_ratio'] = np.tanh(merged_df['raw_intensity_ratio']).astype('float32')
+    merged_df['stress_intensity_asset_ratio'] = merged_df['stress_intensity_asset_ratio'].fillna(0.0).replace([np.inf, -np.inf], 0.0)
+    
+    if merged_df['prism_consumer_id'].duplicated().any():
+        merged_df = merged_df.drop_duplicates(subset=['prism_consumer_id'], keep='first')
+    return merged_df[['prism_consumer_id', 'stress_intensity_asset_ratio']]
+
+def build_state_switching_volatility(history_subset, acct_df):
+    if history_subset.empty:
+        return pd.DataFrame({'prism_consumer_id': [], 'novel_balance_state_switching_volatility': []})
+        
+    df = history_subset.copy()
+    df['prism_consumer_id'] = df['prism_consumer_id'].astype(str)
+    df = df.sort_values(['prism_consumer_id', 'posted_date']).reset_index(drop=True)
+    
+    df['state_negative'] = (df['running_balance'] <= 0).astype(int)
+    df['prev_state'] = df.groupby('prism_consumer_id')['state_negative'].shift(1)
+    df['is_transition'] = (df['state_negative'] != df['prev_state']).astype(int)
+    
+    transition_stats = df.groupby('prism_consumer_id').agg(num_transitions=('is_transition', 'sum'), total_transactions=('state_negative', 'count')).reset_index()
+    transition_stats['switching_rate'] = transition_stats['num_transitions'] / (transition_stats['total_transactions'] + 1e-6)
+    
+    if not acct_df.empty:
+        a_df = acct_df.copy()
+        a_df['prism_consumer_id'] = a_df['prism_consumer_id'].astype(str)
+        acct_agg = a_df.groupby('prism_consumer_id')['balance'].mean().reset_index()
+        acct_agg.columns = ['prism_consumer_id', 'avg_account_balance']
+        merged_stats = pd.merge(transition_stats, acct_agg, on='prism_consumer_id', how='left')
+        merged_stats['avg_account_balance'] = merged_stats['avg_account_balance'].fillna(1.0)
+    else:
+        merged_stats = transition_stats.copy()
+        merged_stats['avg_account_balance'] = 1.0
+        
+    merged_stats['wealth_normalized_switching'] = (merged_stats['switching_rate'] * 10.0) / (np.abs(merged_stats['avg_account_balance']) + 1e-6)
+    merged_stats['novel_balance_state_switching_volatility'] = np.tanh(merged_stats['wealth_normalized_switching']).astype('float32')
+    
+    result_df = merged_stats[['prism_consumer_id', 'novel_balance_state_switching_volatility']].copy()
+    result_df['novel_balance_state_switching_volatility'] = result_df['novel_balance_state_switching_volatility'].fillna(0.0).replace([np.inf, -np.inf], 0.0)
+    
+    if result_df['prism_consumer_id'].duplicated().any():
+        result_df = result_df.drop_duplicates(subset=['prism_consumer_id'], keep='first')
+    return result_df.reset_index(drop=True)
+
+def build_volatility_regime_shift(history_subset, acct_df):
+    if history_subset.empty:
+        return pd.DataFrame(columns=['prism_consumer_id', 'recent_volatility_regime_shift_index'])
+        
+    df = history_subset.copy()
+    df['prism_consumer_id'] = df['prism_consumer_id'].astype(str)
+    df = df.sort_values(['prism_consumer_id', 'posted_date']).reset_index(drop=True)
+    df['abs_balance_change'] = df.groupby('prism_consumer_id')['running_balance'].diff().fillna(0).abs()
+    
+    max_dates = df.groupby('prism_consumer_id')['posted_date'].max().reset_index()
+    df = df.merge(max_dates, on='prism_consumer_id', how='left', suffixes=('', '_max'))
+    cutoff_date = df['posted_date_max'] - pd.Timedelta(days=90)
+    df['is_recent'] = df['posted_date'] >= cutoff_date
+    
+    recent_vol = df[df['is_recent']].groupby('prism_consumer_id')['abs_balance_change'].mean().reset_index(name='recent_mean_vol')
+    hist_vol = df[~df['is_recent']].groupby('prism_consumer_id')['abs_balance_change'].mean().reset_index(name='historical_mean_vol')
+    merged_stats = pd.merge(recent_vol, hist_vol, on='prism_consumer_id', how='outer').fillna(0)
+    merged_stats['volatility_ratio_raw'] = merged_stats['recent_mean_vol'] / (merged_stats['historical_mean_vol'] + 1e-6)
+    
+    if not acct_df.empty:
+        a_df = acct_df.copy()
+        a_df['prism_consumer_id'] = a_df['prism_consumer_id'].astype(str)
+        acct_agg = a_df.groupby('prism_consumer_id')['balance'].mean().reset_index(name='avg_account_balance')
+        merged_stats = pd.merge(merged_stats, acct_agg, on='prism_consumer_id', how='left')
+        merged_stats['avg_account_balance'] = merged_stats['avg_account_balance'].fillna(1.0)
+    else:
+        merged_stats['avg_account_balance'] = 1.0
+        
+    merged_stats['wealth_adjusted_score'] = merged_stats['volatility_ratio_raw'] / (np.abs(merged_stats['avg_account_balance']) + 1e-6)
+    merged_stats['recent_volatility_regime_shift_index'] = np.tanh(merged_stats['wealth_adjusted_score']).astype('float32')
+    
+    result_df = merged_stats[['prism_consumer_id', 'recent_volatility_regime_shift_index']].copy()
+    result_df['recent_volatility_regime_shift_index'] = result_df['recent_volatility_regime_shift_index'].fillna(0.0).replace([np.inf, -np.inf], 0.0)
+    
+    if result_df['prism_consumer_id'].duplicated().any():
+        result_df = result_df.drop_duplicates(subset=['prism_consumer_id'], keep='first')
+    return result_df.reset_index(drop=True)
+
 
 def extract_ALL_features(history_subset, acct_df):
     print("Extracting full habit matrix...")
@@ -213,60 +279,31 @@ def extract_ALL_features(history_subset, acct_df):
     cash = build_cash_utilization(history_subset)
     bnpl = build_BNPL_utilization(history_subset)
     global_tx_feats = build_global_tx_features(history_subset)
-    
-    # --- ADD THE NEW AI DISCOVERIES HERE ---
     volatility_feats = build_spending_volatility_and_stress(history_subset)
     velocity_feats = build_monthly_velocity(history_subset)
     ratio_feats = build_transaction_ratios(history_subset, acct_df)
     
+    # AI Discoveries
+    ai_nonlinear = build_nonlinear_ratio(history_subset, acct_df)
+    ai_stress = build_stress_intensity(history_subset, acct_df)
+    ai_state_switch = build_state_switching_volatility(history_subset, acct_df)
+    ai_regime_shift = build_volatility_regime_shift(history_subset, acct_df)
+    
     features_df = base_features.copy()
     
-    # Include the new features in the join tuple
     all_new_dfs = (
         agg_bal, pivot_bal, *income_feats, *balance_feats, 
         magnitude_feats, drawdown, cash, bnpl, global_tx_feats,
-        volatility_feats, velocity_feats, ratio_feats
+        volatility_feats, velocity_feats, ratio_feats,
+        ai_nonlinear, ai_stress, ai_state_switch, ai_regime_shift
     ) 
     
     for df in all_new_dfs:
         if 'prism_consumer_id' in df.columns:
+            # Ensure type alignment for smooth indexing and joins
+            df['prism_consumer_id'] = df['prism_consumer_id'].astype(str)
             df = df.set_index('prism_consumer_id')
         features_df = features_df.join(df, how='left')
         
     features_df.columns = features_df.columns.astype(str)
-    
-    try:
-        novel_feats = build_novel_feature_8(history_subset, acct_df)
-        if 'prism_consumer_id' in novel_feats.columns:
-            novel_feats = novel_feats.set_index('prism_consumer_id')
-        features_df = features_df.join(novel_feats, how='left')
-    except Exception as e:
-        print(f"Novel feature 8 failed: {e}")
     return features_df.reset_index()
-
-
-import pandas as pd
-import numpy as np
-
-def build_novel_feature_8(history_subset, acct_df):
-    df = history_subset.copy()
-    
-    # Convert posted_date to datetime
-    df['transaction_date'] = pd.to_datetime(df['posted_date'])
-    
-    # Calculate the time difference between transactions for each consumer
-    df_sorted = df.sort_values(['prism_consumer_id', 'transaction_date'])
-    df_sorted['prev_transaction_date'] = df_sorted.groupby('prism_consumer_id')['transaction_date'].shift(1)
-    df_sorted['time_since_last_tx'] = (df_sorted['transaction_date'] - df_sorted['prev_transaction_date']).dt.days.fillna(0)
-    
-    # Calculate the average time between transactions for each consumer
-    avg_time_between_tx = df_sorted.groupby('prism_consumer_id')['time_since_last_tx'].mean().reset_index(name='avg_days_between_transactions')
-    
-    # Merge with account balances to include balance information
-    merged_df = avg_time_between_tx.merge(acct_df[['prism_consumer_id', 'balance']], on='prism_consumer_id', how='left').fillna(0)
-    
-    # Calculate a new feature: ratio of average time between transactions to account balance
-    # Apply a non-linear transformation using exponential decay function to capture diminishing returns
-    merged_df['time_to_balance_ratio_exp_decay'] = np.exp(-merged_df['avg_days_between_transactions'] / (merged_df['balance'] + 1e-6)).fillna(0)
-    
-    return merged_df[['prism_consumer_id', 'time_to_balance_ratio_exp_decay']]
