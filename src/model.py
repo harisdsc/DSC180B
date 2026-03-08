@@ -40,6 +40,9 @@ def train_easy_ensemble(train_df, test_df, num_iterations=20):
         
         ensemble_test_probs[:, i] = xgb_model.predict_proba(X_test_full)[:, 1]
         
+    # ... (end of your for loop)
+        
     final_test_probs = ensemble_test_probs.mean(axis=1)
     
-    return 0.5, final_test_probs
+    # Return the last trained xgb_model as a third output
+    return 0.5, final_test_probs, xgb_model

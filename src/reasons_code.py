@@ -5,7 +5,7 @@ import xgboost as xgb
 import shap
 from sklearn.model_selection import cross_val_predict
 from sklearn.metrics import roc_curve
-from features import calculate_running_balance, extract_ALL_features
+from src.features import calculate_running_balance, extract_ALL_features
 
 FCRA_MAPPING = {
     'avg_balance': 'Average account balance is critically low.',
@@ -67,13 +67,42 @@ CATEGORY_MAPPING = {
 }
 
 def generate_dynamic_reason(feature_name):
+    # 1. Check for an exact match in the core FCRA mapping first
     if feature_name in FCRA_MAPPING:
         return FCRA_MAPPING[feature_name]
+        
+    base_explanation = ""
+    modifier = "."
+    
+    # 2. Find the base transactional category
     for cat_key, explanation in CATEGORY_MAPPING.items():
-        if cat_key in feature_name:
-            return explanation + "."
-    clean_name = feature_name.replace('cat_', '').replace('prop_count_', '').replace('_cwt_weekly', '').replace('_cwt_monthly', '').split('_dom_')[0].replace('_', ' ').title()
-    return f"Elevated risk flagged in transactional category: {clean_name}."
+        # Exclude the suffix keys from being matched as the base category
+        if cat_key in feature_name and cat_key not in ['cwt_weekly', 'cwt_monthly', 'prop_count_cat']:
+            base_explanation = explanation
+            break
+
+    # 3. Determine the specific mathematical modifier applied to that category
+    if 'cwt_weekly' in feature_name:
+        modifier = " combined with high weekly volatility."
+    elif 'cwt_monthly' in feature_name:
+        modifier = " combined with high monthly volatility."
+    elif 'time_mean_days' in feature_name:
+        modifier = " exhibiting an abnormal average frequency."
+    elif 'time_std_days' in feature_name:
+        modifier = " exhibiting highly irregular timing."
+    elif 'prop_count_cat' in feature_name:
+        modifier = " representing a disproportionate share of total transaction volume."
+
+    # 4. Combine base and modifier, or fall back to a clean string if category isn't in the mapping
+    if base_explanation:
+        return f"{base_explanation}{modifier}"
+    else:
+        # Clean up the raw feature name for the fallback
+        clean_name = feature_name.replace('cat_', '').replace('prop_count_', '') \
+                                 .replace('_cwt_weekly', '').replace('_cwt_monthly', '') \
+                                 .replace('_time_mean_days', '').replace('_time_std_days', '') \
+                                 .split('_dom_')[0].replace('_', ' ').title()
+        return f"Elevated risk flagged in transactional category: {clean_name}{modifier}"
 
 def load_all_data(data_path):
     print("Loading data and applying valid snapshot filters...")
