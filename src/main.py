@@ -70,7 +70,7 @@ def main():
     top_feature_cols = prune_features_fast(
         X_train=X_train_full, 
         y_train=y_train, 
-        max_features=150, 
+        max_features=50, 
         corr_threshold=0.85
     )
     print(f"✅ Final feature space size: {len(top_feature_cols)} columns.")

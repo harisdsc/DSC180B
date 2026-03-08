@@ -6,15 +6,96 @@ from sklearn.metrics import (
     roc_curve, precision_recall_curve, auc
 )
 import shap
-import textwrap
 
-# Import the mapping function from your reasons_code.py script
-from src.reasons_code import generate_dynamic_reason
+def clean_feature_name_for_plot(feat):
+    """
+    Translates raw feature column names into clean, short, plain English titles 
+    for data visualization (instead of long FCRA sentences).
+    """
+    # 1. Exact matches for standard features
+    exact_mapping = {
+        'avg_balance': 'Average Account Balance',
+        'min_balance': 'Minimum Account Balance',
+        'max_balance': 'Maximum Account Balance',
+        'checking_to_savings_ratio': 'Checking to Savings Ratio',
+        'txn_rate_to_balance_ratio': 'Transaction Rate to Balance Ratio',
+        'avg_monthly_income': 'Average Monthly Income',
+        'spending_volatility': 'Spending Volatility',
+        'liquidity_stress_ratio': 'Liquidity Stress Ratio',
+        'avg_txn_freq_per_month': 'Avg Monthly Transaction Frequency',
+        'num_accounts': 'Number of Active Accounts',
+        'total_outflows': 'Total Monthly Outflows',
+        'wealth_transfer_ratio': 'Wealth Transfer Ratio',
+        'stress_outflow_ratio': 'Stress Outflow Ratio',
+        'cash_utilization_pct': 'Cash Utilization Pct',
+        'BNPL_utilization_pct': 'BNPL Utilization Pct',
+        'mean_daily_change': 'Mean Daily Balance Change',
+        'std_daily_change': 'Balance Volatility (Std Dev)',
+        '0.25': '25th Percentile Balance',
+        '0.5': 'Median Historical Balance',
+        '0.75': '75th Percentile Balance',
+        'dist_to_hard_neg': 'Distance to Hard Negative Profile',
+    }
+    
+    # AI Engineered Features
+    ai_mapping = {
+        'recovery_latency_normalized': 'Normalized Recovery Latency',
+        'balance_autocorr_lag1_index': 'Balance Autocorrelation (Lag 1)',
+        'balance_dist_skewness_index': 'Balance Distribution Skewness',
+        'balance_path_efficiency_index': 'Balance Path Efficiency',
+        'asymmetry_recovery_flow_index': 'Asymmetry Recovery Flow',
+        'volatility_concentration_ratio': 'Volatility Concentration Ratio',
+        'nonlinear_transformed_ratio': 'Non-linear Balance Ratio',
+        'stress_intensity_asset_ratio': 'Stress Intensity Asset Ratio',
+        'novel_balance_state_switching_volatility': 'Balance State Switching Volatility',
+        'recent_volatility_regime_shift_index': 'Recent Volatility Regime Shift',
+        'balance_spending_sensitivity_index': 'Balance Spending Sensitivity',
+    }
+    
+    exact_mapping.update(ai_mapping)
+    
+    if str(feat) in exact_mapping:
+        return exact_mapping[str(feat)]
+        
+    # 2. Dynamic Regex/String Parsing for Categories
+    name = str(feat)
+    
+    # Wavelet Weekly/Monthly Patterns
+    if name.startswith('cat_') and name.endswith('_cwt_weekly'):
+        cat = name.replace('cat_', '').replace('_cwt_weekly', '').replace('_', ' ').title()
+        return f"Weekly {cat} Pattern"
+        
+    if name.startswith('cat_') and name.endswith('_cwt_monthly'):
+        cat = name.replace('cat_', '').replace('_cwt_monthly', '').replace('_', ' ').title()
+        return f"Monthly {cat} Pattern"
+        
+    # Proportional Counts
+    if name.startswith('prop_count_cat_'):
+        cat = name.replace('prop_count_cat_', '').replace('_', ' ').title()
+        return f"Proportion of {cat} Txns"
+        
+    # Day of Month Averages
+    if name.startswith('cat_') and '_dom_' in name:
+        parts = name.split('_dom_')
+        cat = parts[0].replace('cat_', '').replace('_', ' ').title()
+        day = parts[1]
+        return f"{cat} Avg (Day {day})"
+        
+    # Day of Week Averages
+    days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
+    for day in days:
+        if name.startswith('cat_') and name.endswith(f'_{day}'):
+            cat = name.replace('cat_', '').replace(f'_{day}', '').replace('_', ' ').title()
+            return f"{cat} Avg ({day.title()})"
+            
+    # 3. Ultimate Fallback (Replaces underscores with spaces and capitalizes)
+    return name.replace('_', ' ').title()
+
 
 def evaluate_and_plot(X_holdout, y_holdout, final_test_probs, best_threshold, explainer=None, max_features_to_show=10, global_sample_size=1000):
     """
     Evaluates predictions, saves metrics plots at 300 DPI, generates a global SHAP feature 
-    weight graph, creates a custom Top 20 feature importance plot, and saves filtered SHAP waterfall plots.
+    weight graph, a classic SHAP beeswarm summary plot, and filtered SHAP waterfall plots.
     """
     y_arr = np.array(y_holdout)
     probs_arr = np.array(final_test_probs)
@@ -66,8 +147,7 @@ def evaluate_and_plot(X_holdout, y_holdout, final_test_probs, best_threshold, ex
     # --- 2. SHAP EXPLANATIONS ---
     if explainer is not None:
         
-        # --- A. Global Feature Weights Graph ---
-        print("\nGenerating Global SHAP Feature Weights plot...")
+        print("\nGenerating Global SHAP samples...")
         if len(X_holdout) > global_sample_size:
             X_sample = shap.utils.sample(X_holdout, global_sample_size)
             print(f"  (Sampling {global_sample_size} rows for global metrics)")
@@ -76,46 +156,45 @@ def evaluate_and_plot(X_holdout, y_holdout, final_test_probs, best_threshold, ex
             
         shap_values_global = explainer(X_sample)
         
-        # FAILSAFE & WRAPPER: Wrap long FCRA sentences to 45 characters max per line
+        # Format the feature names to be clean and punchy
         if hasattr(X_sample, 'columns'):
-            readable_names = [textwrap.fill(generate_dynamic_reason(col), width=45) for col in X_sample.columns]
+            readable_names = [clean_feature_name_for_plot(col) for col in X_sample.columns]
         else:
-            readable_names = [textwrap.fill(generate_dynamic_reason(f"Feature {i}"), width=45) for i in range(X_sample.shape[1])]
+            readable_names = [clean_feature_name_for_plot(f"Feature_{i}") for i in range(X_sample.shape[1])]
             
         shap_values_global.feature_names = readable_names
         
-        # Increase width slightly to accommodate longer sentence labels
-        plt.figure(figsize=(14, 10))
+        # --- A. Classic SHAP Summary Plot (Beeswarm) ---
+        print("Generating Classic SHAP Summary (Beeswarm) plot...")
+        plt.figure(figsize=(10, 8))
+        
+        # Depending on XGBoost objective, SHAP returns 2D or 3D arrays. 
+        # If it's a classification model it often returns 3D: (samples, features, classes)
+        if len(shap_values_global.values.shape) > 2:
+            shap_vals_for_plot = shap_values_global.values[:, :, 1]
+        else:
+            shap_vals_for_plot = shap_values_global.values
+            
+        shap.summary_plot(
+            shap_vals_for_plot, 
+            X_sample, 
+            feature_names=readable_names, 
+            max_display=max_features_to_show, 
+            show=False
+        )
+        plt.savefig('shap_summary_beeswarm.png', dpi=300, bbox_inches='tight')
+        plt.close()
+        print("  -> Saved shap_summary_beeswarm.png (300 DPI)")
+
+        # --- B. Global Feature Weights Graph (Bar) ---
+        print("Generating Global SHAP Feature Weights (Bar) plot...")
+        plt.figure(figsize=(10, 8))
         shap.plots.bar(shap_values_global, max_display=max_features_to_show, show=False)
         plt.title('Global Feature Weights (Mean Absolute SHAP)')
         plt.tight_layout()
         plt.savefig('shap_global_feature_weights.png', dpi=300, bbox_inches='tight')
         plt.close()
         print("  -> Saved shap_global_feature_weights.png (300 DPI)")
-
-        # --- B. Custom Top 20 Feature Importances Bar Chart ---
-        print("\nGenerating Top 20 Overall Feature Importances plot...")
-        
-        if len(shap_values_global.values.shape) > 2:
-            mean_abs_shap = np.abs(shap_values_global.values[:, :, 1]).mean(axis=0)
-        else:
-            mean_abs_shap = np.abs(shap_values_global.values).mean(axis=0)
-        
-        importance_df = pd.DataFrame({
-            'Feature': readable_names,
-            'Importance': mean_abs_shap
-        })
-        
-        top_20_df = importance_df.sort_values(by='Importance', ascending=True).tail(20)
-        
-        plt.figure(figsize=(14, 12))
-        plt.barh(top_20_df['Feature'], top_20_df['Importance'], height=0.6, color='#1f77b4')
-        plt.title('Top 20 Overall Feature Importances', fontsize=16)
-        plt.xlabel('Mean Absolute SHAP Value')
-        plt.tight_layout()
-        plt.savefig('top_20_feature_importances.png', dpi=300, bbox_inches='tight')
-        plt.close()
-        print("  -> Saved top_20_feature_importances.png (300 DPI)")
 
         # --- C. Local Waterfall Plots for TP & TN ---
         tp_indices = np.where((roc_test_preds == 1) & (y_arr == 1))[0]
@@ -129,7 +208,7 @@ def evaluate_and_plot(X_holdout, y_holdout, final_test_probs, best_threshold, ex
             print("Could not find enough TP/TN cases to plot SHAP values.")
             return
 
-        print(f"\nGenerating filtered SHAP waterfall plots...")
+        print(f"Generating filtered SHAP waterfall plots...")
         for idx, label in samples_to_plot:
             if hasattr(X_holdout, 'iloc'):
                 row = X_holdout.iloc[[idx]]
@@ -138,14 +217,18 @@ def evaluate_and_plot(X_holdout, y_holdout, final_test_probs, best_threshold, ex
             
             shap_values_local = explainer(row)
 
-            # FAILSAFE & WRAPPER for Waterfall plots
+            # Apply clean names to waterfall plots
             if hasattr(row, 'columns'):
-                shap_values_local.feature_names = [textwrap.fill(generate_dynamic_reason(col), width=45) for col in row.columns]
+                shap_values_local.feature_names = [clean_feature_name_for_plot(col) for col in row.columns]
             else:
-                shap_values_local.feature_names = [textwrap.fill(generate_dynamic_reason(f"Feature {i}"), width=45) for i in range(row.shape[1])]
+                shap_values_local.feature_names = [clean_feature_name_for_plot(f"Feature_{i}") for i in range(row.shape[1])]
 
-            plt.figure(figsize=(14, 9))
-            shap.plots.waterfall(shap_values_local[0], max_display=max_features_to_show, show=False)
+            plt.figure(figsize=(10, 7))
+            # Fallback to bar if waterfall has issues with versions
+            try:
+                shap.plots.waterfall(shap_values_local[0], max_display=max_features_to_show, show=False)
+            except Exception:
+                shap.plots.bar(shap_values_local[0], max_display=max_features_to_show, show=False)
             
             plt.title(f'SHAP Waterfall - {label} (Index: {idx})')
             plt.tight_layout()
