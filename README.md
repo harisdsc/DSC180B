@@ -61,13 +61,13 @@ python3 train.py <model> [--tune]
 
 The **CatBoost** model achieved the highest perfomance with an **AUC-ROC of 0.8672**.
 
-- CatBoost: 0.8672 AUC
+- CatBoost: 0.8585 AUC
 
-- XGBoost: 0.8622 AUC
+- XGBoost: 0.8539 AUC
 
-- LightGBM: 0.8510 AUC
+- LightGBM: 0.8222 AUC
 
-- Logistic Regression: 0.7734 AUC
+- Logistic Regression: 0.7532 AUC
 ---
 **Team**: Ada Mo, Brighton Chan, Haris Saif, Kyle Choi
 **Mentors**: Kyle Nero & Daniel Matthew (Prism Data)
