@@ -17,7 +17,6 @@
 
 <body>
 
-    <!-- Navigation -->
     <nav class="nav" id="nav">
         <div class="nav-inner">
             <a href="#hero" class="nav-logo">
@@ -41,13 +40,16 @@
                 <li><a href="#methods">Methods</a></li>
                 <li><a href="#results">Results</a></li>
                 <li><a href="#conclusion">Conclusion</a></li>
+                <li><a href="https://github.com/harisdsc/DSC180B-artifacts" target="_blank" rel="noopener noreferrer"
+                        class="nav-cta"
+                        style="background: transparent !important; color: var(--foreground) !important; border: 1px solid var(--border);">Artifacts</a>
+                </li>
                 <li><a href="https://github.com/harisdsc/DSC180B" target="_blank" rel="noopener noreferrer"
                         class="nav-cta">GitHub</a></li>
             </ul>
         </div>
     </nav>
 
-    <!-- Hero -->
     <section class="hero" id="hero">
         <div class="container hero-container">
             <div class="hero-left">
@@ -110,53 +112,51 @@
         </div>
     </section>
 
-    <!-- Stats Banner -->
     <section class="stats-banner">
         <div class="container">
             <div class="stats-row">
                 <div class="stat-item">
-                    <span class="stat-number">45M+</span>
-                    <span class="stat-label">"Credit Invisible" Americans</span>
+                    <span class="stat-number">12K</span>
+                    <span class="stat-label">Initial Consumers Evaluated</span>
                 </div>
                 <div class="stat-divider"></div>
                 <div class="stat-item">
-                    <span class="stat-number">30%</span>
-                    <span class="stat-label">Predictive Lift Over Traditional Scores</span>
+                    <span class="stat-number">9,319</span>
+                    <span class="stat-label">Post-Exclusion Training Population</span>
                 </div>
                 <div class="stat-divider"></div>
                 <div class="stat-item">
-                    <span class="stat-number">6.4M+</span>
-                    <span class="stat-label">Transaction Records Analyzed</span>
+                    <span class="stat-number">~10%</span>
+                    <span class="stat-label">Delinquent Sample Representation</span>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Introduction -->
     <section class="section" id="introduction">
         <div class="container">
             <span class="section-tag">Introduction</span>
             <h2 class="section-title">Why Traditional Credit Scoring<br />Falls Short</h2>
             <div class="intro-grid">
                 <div class="intro-text">
-                    <p>Credit scores play a critical role in shaping financial opportunities, influencing access to
-                        loans, credit cards, and housing. However, traditional systems are inherently biased toward
-                        individuals who already have established credit histories.</p>
-                    <p>This creates a structural disadvantage for the <strong>credit-invisible</strong> (young
-                        adults, recent immigrants, and low-income backgrounds) who may have limited or
-                        no prior credit activity.</p>
+                    <p>Traditional credit scoring models rely heavily on past repayment records, systematically putting
+                        credit-thin individuals such as students, new immigrants, and cash-based workers at a
+                        disadvantage when applying for loans.</p>
+                    <p>To address this gap, we implement a cash-flow underwriting model that measures credit risk by
+                        leveraging income stability, spending patterns, and liquidity dynamics from bank transaction
+                        data.</p>
                 </div>
                 <div class="intro-text">
-                    <p>Most people, however, maintain active bank accounts containing valuable information about their
-                        real-time income, spending habits, and financial stability.</p>
-                    <p><strong>Cash-flow underwriting</strong> leverages this everyday transaction data to evaluate
-                        borrowers more fairly. Our project applies NLP and machine learning to transaction records,
-                        creating a "Cash Score" that predicts credit risk without relying on traditional credit history.
-                    </p>
+                    <p>Instead of depending solely on historical credit lines, our model parses everyday cash-flows to
+                        evaluate creditworthiness more inclusively via a dynamic metric: the <strong>Cash
+                            Score</strong>.</p>
+                    <p style="padding-top: 8px; border-top: 1px solid var(--border); font-size: 0.9rem;"><strong>Project
+                            Scope:</strong> We strictly focused on feature engineering and predictive modeling using raw
+                        transaction logs to forecast delinquency risk. We did not test for demographic fairness due to
+                        the strict anonymization of the dataset.</p>
                 </div>
             </div>
 
-            <!-- Feature Cards (Prism-style) -->
             <div class="feature-cards">
                 <div class="feature-card">
                     <div class="feature-icon">
@@ -166,8 +166,9 @@
                                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
                     </div>
-                    <h3>Fairer Assessments</h3>
-                    <p></p>
+                    <h3>Inclusive Assessments</h3>
+                    <p>By removing the dependency on historical debt usage, we differentiate risk among borrowers with
+                        similar financial profiles but no traditional credit footprint.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">
@@ -177,8 +178,9 @@
                                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
                     </div>
-                    <h3>Data-Driven Insights</h3>
-                    <p></p>
+                    <h3>Data-Driven Thresholds</h3>
+                    <p>Utilizing tree-based boosting architectures with AUC-ROC performance evaluations to allow lenders
+                        to set customizable risk thresholds based on their specific tolerance preferences.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">
@@ -188,62 +190,57 @@
                                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
                     </div>
-                    <h3>Privacy First</h3>
-                    <p></p>
+                    <h3>Transparent Decisions</h3>
+                    <p>Producing interpretable signals through actionable "reason codes" so underwriters understand
+                        exactly what financial behaviors are impacting a score.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Data -->
     <section class="section section-tinted" id="data">
         <div class="container">
             <span class="section-tag">Data</span>
             <h2 class="section-title">Hierarchical Financial Records</h2>
-            <p class="section-desc"></p>
+            <p class="section-desc">We utilized a proprietary, anonymized dataset provided by Prism Data, consisting of
+                millions of banking records securely linked to specific evaluation dates.</p>
 
             <div class="data-grid">
                 <div class="data-card">
                     <div class="data-card-top">
-                        <h3>Consumer Data</h3>
-                        <span class="pill">15,000 rows</span>
+                        <h3>Target Variable</h3>
+                        <span class="pill">Delinquency (DQ)</span>
                     </div>
-                    <p>Consumer-level information including evaluation dates and delinquency outcomes, with 3,000 held
-                        out for evaluation.</p>
+                    <p>Our target was forecasting a delinquent payment, defined as "a payment that is late or missed
+                        past its due date." Our population consisted of ~10% delinquent consumers (DQ=1) and ~90%
+                        non-delinquent consumers (DQ=0).</p>
                 </div>
                 <div class="data-card">
                     <div class="data-card-top">
-                        <h3>Account Data</h3>
-                        <span class="pill">24,466 rows</span>
+                        <h3>Exclusion Funnel</h3>
+                        <span class="pill">9,319 Valid Users</span>
                     </div>
-                    <p>Account-level details including account types, balance dates, and balance amounts for each
-                        consumer.</p>
+                    <p>We started with 12,000 consumers and applied a strict screening funnel: dropping duplicates in
+                        transaction/account IDs, removing consumers without valid accounts, and dropping users with
+                        fewer than 3 months of transaction history.</p>
                 </div>
-                <div class="data-card">
-                    <div class="data-card-top">
-                        <h3>Transaction Data</h3>
-                        <span class="pill">6.4M rows</span>
-                    </div>
-                    <p>Transaction-level records with categories, amounts, credit/debit indicators, and posting dates.
-                    </p>
-                </div>
-                <div class="data-card">
-                    <div class="data-card-top">
-                        <h3>Category Map</h3>
-                        <span class="pill">50 categories</span>
-                    </div>
-                    <p>A mapping from integer category codes to human-readable transaction category names.</p>
-                </div>
+            </div>
+
+            <div
+                style="margin-top: 24px; text-align: center; background: var(--background-card); padding: 16px; border: 1px solid var(--border); border-radius: var(--radius-lg);">
+                <img src="image/Balance_Comparison.png"
+                    alt="Running Balance Comparison Over Time: Delinquent vs Non-Delinquent"
+                    style="max-height: 400px; margin: 0 auto; display: block; border-radius: var(--radius);">
             </div>
         </div>
     </section>
 
-    <!-- Methods -->
     <section class="section" id="methods">
         <div class="container">
             <span class="section-tag">Methods</span>
             <h2 class="section-title">Data Wrangling & Feature Engineering</h2>
-            <p class="section-desc"></p>
+            <p class="section-desc">Our approach transforms raw, irregular transaction time-series into structured,
+                consumer-level tabular features across multiple temporal dimensions.</p>
 
             <div class="pipeline">
                 <div class="pipeline-step">
@@ -251,11 +248,12 @@
                         <span class="pipeline-num">01</span>
                     </div>
                     <div class="pipeline-content">
-                        <h3>Data Cleaning</h3>
-                        <p></p>
+                        <h3>Feature Engineering</h3>
+                        <p>We aggregated raw events into comprehensive financial profiles capturing liquidity,
+                            stability, and consumption.</p>
                         <details class="accordion accordion-sm">
                             <summary class="accordion-trigger">
-                                <span>Technical Details</span>
+                                <span>Feature Categories</span>
                                 <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 20 20" fill="none">
                                     <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="1.5"
                                         stroke-linecap="round" stroke-linejoin="round" />
@@ -263,12 +261,19 @@
                             </summary>
                             <div class="accordion-content">
                                 <ul>
-                                    <li>Held out ~3,000 consumers with null delinquency labels for out-of-sample
-                                        evaluation</li>
-                                    <li>Removed credit_score variable to avoid biasing toward traditional scoring</li>
-                                    <li>Filtered transactions occurring after each consumer's evaluation date</li>
-                                    <li>Applied minimum data sufficiency criteria: at least 1 linked account, 3 months
-                                        of history, and identifiable recurring income</li>
+                                    <li><strong>Income Features (Inflow stability):</strong> Monthly income, income
+                                        volatility, source count, regularity, recency across 1, 3, 6, and 12-month
+                                        windows.</li>
+                                    <li><strong>Income-to-Spending Ratio Features (Consumption burden):</strong>
+                                        Category ratios, multi-window summaries (1/3/6/9m), and income-adjusted
+                                        intensity.</li>
+                                    <li><strong>Balance Features (Liquidity trajectory):</strong> Reconstructed running
+                                        balance series, volatility, drawdowns, trend slopes, and overdraft flags.</li>
+                                    <li><strong>Account Features (Resource composition):</strong> Total/avg balances,
+                                        account diversity, dispersion, negative exposure, and wealth tiers.</li>
+                                    <li><strong>Temporal Behavior Features (Financial regularity):</strong> Weekday
+                                        spending habits, bill-cycle timing (day-of-month), transaction periodicity,
+                                        spectral stability (CWT).</li>
                                 </ul>
                             </div>
                         </details>
@@ -280,11 +285,12 @@
                         <span class="pipeline-num">02</span>
                     </div>
                     <div class="pipeline-content">
-                        <h3>Feature Engineering</h3>
-                        <p></p>
+                        <h3>Feature Selection</h3>
+                        <p>To reduce high dimensionality and eliminate noise, we applied rigorous selection
+                            methodologies to isolate the most predictive signals.</p>
                         <details class="accordion accordion-sm">
                             <summary class="accordion-trigger">
-                                <span>Feature Categories</span>
+                                <span>Selection Techniques</span>
                                 <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 20 20" fill="none">
                                     <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="1.5"
                                         stroke-linecap="round" stroke-linejoin="round" />
@@ -292,15 +298,18 @@
                             </summary>
                             <div class="accordion-content">
                                 <ul>
-                                    <li><strong>Account-Level:</strong> Total/average balances, account diversity,
-                                        liquidity indicators, negative balance exposure, wealth tier flags</li>
-                                    <li><strong>Balance Dynamics:</strong> Reconstructed running balances capturing
-                                        volatility, daily changes, drawdowns, balance trends (30/90/365 days), overdraft
-                                        flags</li>
-                                    <li><strong>Income:</strong> Total/average monthly income, income volatility, number
-                                        of sources, regularity, recency of income events</li>
-                                    <li><strong>Spending Ratios:</strong> Category-level spend-to-income ratios across
-                                        1, 3, 6, and 9-month windows</li>
+                                    <li><strong>L1-Lasso Regularization:</strong> Drove weights of less predictive
+                                        features to zero.</li>
+                                    <li><strong>Feature Importance:</strong> Retained the top 50 features with the
+                                        largest importance weights.</li>
+                                    <li><strong>Max_Features Hyperparameter:</strong> Utilized embedded feature
+                                        selection directly within tree models.</li>
+                                    <li><strong>Zero-Variance Elimination:</strong> Automatically removed features
+                                        containing zero-variance.</li>
+                                    <li><strong>Collinearity Screening:</strong> Dropped highly correlating redundant
+                                        features (>0.85).</li>
+                                    <li><strong>Manual Inspection:</strong> Manually picked out and removed certain
+                                        uninterpretable features to preserve reason-code clarity.</li>
                                 </ul>
                             </div>
                         </details>
@@ -312,32 +321,25 @@
                         <span class="pipeline-num">03</span>
                     </div>
                     <div class="pipeline-content">
-                        <h3>Feature Selection</h3>
-                        <p></p>
-                    </div>
-                </div>
-
-                <div class="pipeline-step">
-                    <div class="pipeline-marker">
-                        <span class="pipeline-num">04</span>
-                    </div>
-                    <div class="pipeline-content">
-                        <h3>Model Training</h3>
-                        <p></p>
+                        <h3>Model Training & Tuning</h3>
+                        <p>We trained multiple models to predict the probability of delinquency using a strict 80-20
+                            Train-Test split.</p>
                         <details class="accordion accordion-sm">
                             <summary class="accordion-trigger">
-                                <span>Model Details</span>
+                                <span>Optimization Details</span>
                                 <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 20 20" fill="none">
                                     <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="1.5"
                                         stroke-linecap="round" stroke-linejoin="round" />
                                 </svg>
                             </summary>
                             <div class="accordion-content">
-                                <p><strong>Logistic Regression:</strong> 80-20 train-test split, StandardScaler
-                                    preprocessing, class balance weighting. Evaluated with AUC-ROC.</p>
-                                <p><strong>XGBoost:</strong> Gradient boosted decision trees with grid search
-                                    cross-validation. Uses scale_pos_weight for class imbalance. Evaluated on AUC-ROC
-                                    and per-sample latency.</p>
+                                <p>We utilized <strong>Optuna</strong> for comprehensive hyper-parameter tuning across
+                                    our gradient-boosted decision trees (XGBoost, LightGBM) and evaluated baseline
+                                    Logistic Regression models.</p>
+                                <p>Because our target labels were highly skewed (~10% DQ), we explicitly avoided using
+                                    standard accuracy as a metric. We utilized specific Imbalanced Data Handling
+                                    techniques (such as <code>scale_pos_weight</code> and balanced class weights) and
+                                    strictly evaluated model performance using <strong>AUC-ROC</strong>.</p>
                             </div>
                         </details>
                     </div>
@@ -346,12 +348,12 @@
         </div>
     </section>
 
-    <!-- Results -->
     <section class="section section-tinted" id="results">
         <div class="container">
             <span class="section-tag">Results</span>
             <h2 class="section-title">Results &amp; Discussion</h2>
-            <p class="section-desc"></p>
+            <p class="section-desc">Our final XGBoost model successfully demonstrates the robust predictive power of
+                cash-flow underwriting, allowing for transparent deployment into actual lending workflows.</p>
 
             <div class="results-grid">
                 <div class="result-card">
@@ -363,10 +365,25 @@
                         </svg>
                     </div>
                     <h3>Model Performance</h3>
-                    <p>AUC-ROC scores for train and test sets, latency benchmarks, and comparative analysis.</p>
-                    <div class="placeholder">
-                        <span></span>
-                    </div>
+                    <p>Testing AUC-ROC scores across our benchmarked algorithms.</p>
+                    <table style="width:100%; text-align:left; border-collapse: collapse; margin-top:10px;">
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <th style="padding-bottom:8px; color:var(--foreground);">Model</th>
+                            <th style="padding-bottom:8px; color:var(--foreground);">Test AUC</th>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding:8px 0;">XGBoost</td>
+                            <td style="padding:8px 0; color:var(--accent); font-weight:bold;">0.85</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding:8px 0;">LightGBM</td>
+                            <td style="padding:8px 0;">0.82</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding:8px 0;">Logistic Regression</td>
+                            <td style="padding:8px 0;">0.80</td>
+                        </tr>
+                    </table>
                 </div>
                 <div class="result-card">
                     <div class="result-card-icon">
@@ -376,46 +393,39 @@
                                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
                     </div>
-                    <h3>Cash Score Distribution</h3>
-                    <p>Distribution of generated Cash Scores (0-10 scale) across the consumer population.</p>
-                    <div class="placeholder">
-                        <span></span>
+                    <h3>Production Outputs & Reason Codes</h3>
+                    <p>Translating continuous default probabilities into actionable lending metrics and transparent
+                        decisions.</p>
+                    <div
+                        style="background: var(--background-muted); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden;">
+                        <img src="image/model_products.png"
+                            alt="Production Outputs: Model output translates via (1-probability)x10 to a Cash Score of 7.54, accompanied by top 3 Reason Codes."
+                            style="width: 100%; display: block;">
                     </div>
                 </div>
             </div>
-            <details class="accordion">
-                <summary class="accordion-trigger">
-                    <span>Discussion</span>
-                    <svg class="accordion-chevron" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                        <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-                            stroke-linejoin="round" />
-                    </svg>
-                </summary>
-                <div class="accordion-content">
-                    <div class="vocab-grid">
-                        <div class="vocab-item">
-                            <dt></dt>
-                            <dd></dd>
-                        </div>
-                    </div>
-                </div>
-            </details>
         </div>
     </section>
 
-    <!-- Conclusion -->
     <section class="section" id="conclusion">
         <div class="container">
             <div class="conclusion-block">
                 <span class="section-tag">Conclusion</span>
-                <h2 class="section-title">Conclusion</h2>
-                <p></p>
-                <p></p>
+                <h2 class="section-title">The Future of Credit</h2>
+                <p>Traditional credit scoring inherently excludes millions of financially responsible individuals. By
+                    shifting the paradigm to <strong>cash flow underwriting</strong>, we successfully demonstrated the
+                    ability to leverage transaction-level behavior to evaluate repayment risk.</p>
+                <p>Our XGBoost architecture, achieving a 0.85 Test AUC, proves that anonymized bank transaction data
+                    contains rich, highly predictive signals. This approach allows financial institutions to
+                    differentiate risk among borrowers with similar financial profiles who may otherwise appear
+                    identical under legacy FICO metrics. By translating model probabilities into 1-10 Cash Scores and
+                    providing interpretable signals through embedded reason codes, this methodology enables transparent
+                    decisions. Ultimately, these tools can be directly integrated into existing lending workflows to
+                    support more precise, inclusive, and data-driven underwriting.</p>
             </div>
         </div>
     </section>
 
-    <!-- Team -->
     <section class="section section-tinted" id="team">
         <div class="container">
             <span class="section-tag">Our Team</span>
@@ -424,31 +434,38 @@
                 <div class="team-card">
                     <div class="team-avatar">AM</div>
                     <h3>Ada Mo</h3>
-                    <p></p>
+                    <p>admo@ucsd.edu</p>
                 </div>
                 <div class="team-card">
                     <div class="team-avatar">BC</div>
                     <h3>Brighton Chan</h3>
-                    <p></p>
+                    <p>chc@ucsd.edu</p>
                 </div>
                 <div class="team-card">
                     <div class="team-avatar">HS</div>
                     <h3>Haris Saif</h3>
-                    <p></p>
+                    <p>hasaif@ucsd.edu</p>
                 </div>
                 <div class="team-card">
                     <div class="team-avatar">KC</div>
                     <h3>Kyle Choi</h3>
-                    <p></p>
+                    <p>k3choi@ucsd.edu</p>
                 </div>
             </div>
-            <div class="mentors-row">
-                <p>Mentors: <strong>Kyle Nero</strong> &amp; <strong>Daniel Mathew</strong> &mdash; Prism Data</p>
+            <div class="mentors-row"
+                style="margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: center; gap: 40px; flex-wrap: wrap;">
+                <img src="image/prism_logo_trans.png" alt="Prism Data"
+                    style="height: 100px; filter: brightness(0) invert(1); opacity: 0.8; margin: 0 auto 8px;">
+                <div>
+                    <p>Mentor: <strong>Kyle Nero</strong><br>kyle.nero@prismdata.com</p>
+                </div>
+                <div>
+                    <p>Mentor: <strong>Daniel Mathew</strong><br>daniel.mathew@prismdata.com</p>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- Footer -->
     <footer class="footer">
         <div class="container footer-inner">
             <div class="footer-brand">
@@ -463,9 +480,11 @@
             </div>
             <div class="footer-center">
                 <p>Evaluating Credit Risk Through Transaction-Level Cash Flows</p>
-                <p class="footer-sub">DSC 180B &middot; UC San Diego &middot; 2025</p>
+                <p class="footer-sub">DSC 180B &middot; UC San Diego &middot; 2026</p>
             </div>
             <div class="footer-links">
+                <a href="https://github.com/harisdsc/DSC180B-artifacts" target="_blank"
+                    rel="noopener noreferrer">Artifacts</a>
                 <a href="https://github.com/harisdsc/DSC180B" target="_blank" rel="noopener noreferrer">GitHub</a>
             </div>
         </div>

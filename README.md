@@ -1,33 +1,41 @@
-## train.py
+# CashFlow Credit Scoring
+**DSC 180B Capstone Project · UC San Diego · Prism Data**
 
-### Models
-
-> `python3 train.py` **`<model>`**
-
-* `log-reg` : Train Logistic Regression (default).
-* `xgboost` : Train XGBoost Classifier.
-* `catboost` : Train CatBoost Classifier.
-* `lightgbm` : Train LightGBM Classifier.
-* `all` : Train and evaluate all models sequentially.
-
-### Options
-
-> `python3 train.py <model>` **`--tune`**
-
-* `--tune` : Run Optuna hyperparameter optimization (100 trials) before training and save best config.
+Evaluate credit risk using machine learning on transaction-level cash flows as a data-driven alternative to traditional scoring.
 
 ---
 
-## src/pipeline.py
+## Introduction
+Traditional credit scores rely on historical repayment data, often excluding those with limited formal credit history. This project develops a framework to assess creditworthiness via real-time behavioral signals such as income consistency, spending composition, and liquidity trends derived from bank transactions. Our results demonstrate that these cash-flow signals significantly enhance risk prediction for a more inclusive **financial** system.
 
-### Data
+## Installation & Setup
+1. **Clone the Repository:**
+   ```
+   git clone https://github.com/harisdsc/DSC180B.git
+   cd DSC180B
+   ```
+2. **Environment Setup:**
+    ```
+    python3 -m venv env
+    source env/bin/activate
+    pip install -r requirements.txt
+    ```
 
-> `python3 src/pipeline.py`
+## Data
+The pipeline processes hierarchical financial data:
 
-* `pipeline` : Load raw data, generate features (income, balance, transactions), and save processed data to `data/features.pqt` (called within train.py)
+- **Consumers**: Delinquency outcomes for 15,000 individuals.
+
+- **Accounts**: Types and balances for 24,000+ accounts.
+
+- **Transactions**: 6.4 million categorized records.
+
+## Usage
+
+## Project Structure
+
+## Results
 
 ---
-
-Artifacts Repo: https://github.com/harisdsc/DSC180B-artifacts
-
-Project Website: https://harisdsc.github.io/DSC180B/
+**Team**: Ada Mo, Brighton Chan, Haris Saif, Kyle Choi
+**Mentors**: Kyle Nero & Daniel Matthew (Prism Data)

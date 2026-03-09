@@ -5,3 +5,5 @@ test_features.py
 models/
 .DS_Store
 env/
+plot_pr.py
+plot_roc.py
