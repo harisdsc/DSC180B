@@ -76,7 +76,7 @@ if __name__ == "__main__":
     tune_latency = 0.0
     if tune:
         tune_start = time.time()
-        best_params, _ = tune_hyperparameters(model_name, train_df[top_feature_cols], y_train, n_trials=1000)
+        best_params, _ = tune_hyperparameters(model_name, train_df[top_feature_cols], y_train, n_trials=100)
         tune_latency = time.time() - tune_start
         os.makedirs('configs', exist_ok=True)
         with open(f"configs/{model_name}.json", "w") as f:

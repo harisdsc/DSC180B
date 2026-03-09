@@ -39,6 +39,7 @@
                 <li><a href="#data">Data</a></li>
                 <li><a href="#methods">Methods</a></li>
                 <li><a href="#results">Results</a></li>
+                <li><a href="#outputs">Outputs</a></li>
                 <li><a href="#conclusion">Conclusion</a></li>
                 <li><a href="https://github.com/harisdsc/DSC180B-artifacts" target="_blank" rel="noopener noreferrer"
                         class="nav-cta"
@@ -226,11 +227,169 @@
                 </div>
             </div>
 
-            <div
+            <!-- <div
                 style="margin-top: 24px; text-align: center; background: var(--background-card); padding: 16px; border: 1px solid var(--border); border-radius: var(--radius-lg);">
                 <img src="image/Balance_Comparison.png"
                     alt="Running Balance Comparison Over Time: Delinquent vs Non-Delinquent"
                     style="max-height: 400px; margin: 0 auto; display: block; border-radius: var(--radius);">
+            </div> -->
+            <div
+                style="margin-top: 24px; text-align: center; background: var(--background-card); padding: 16px; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 14px; text-align: left;">
+                    <caption
+                        style="caption-side: bottom; padding: 8px; font-size: 12px; color: var(--text-muted); text-align: center;">
+                        Consumer Dataframe: Each row represents a unique consumer and their target variable (DQ)
+                        indicating delinquency status.
+                    </caption>
+                    <thead>
+                        <tr style="background: var(--border);">
+                            <th style="padding: 8px 12px; border: 1px solid var(--border);">Consumer ID</th>
+                            <th style="padding: 8px 12px; border: 1px solid var(--border);">Evaluation Date</th>
+                            <th style="padding: 8px 12px; border: 1px solid var(--border);">Credit Score</th>
+                            <th style="padding: 8px 12px; border: 1px solid var(--border);">DQ Target</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">1608</td>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">2021-08-01</td>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">746.0</td>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">0.0</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">8752</td>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">2023-10-21</td>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">441.0</td>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">1.0</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">5606</td>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">2023-12-06</td>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">600.0</td>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">0.0</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div
+                style="margin-top: 24px; text-align: center; background: var(--background-card); padding: 16px; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 14px; text-align: left;">
+                    <caption
+                        style="caption-side: bottom; padding: 8px; font-size: 12px; color: var(--text-muted); text-align: center;">
+                        Account Dataframe: Each row represents a unique account linked to a consumer, containing
+                        financial details like balance and account type.
+                    </caption>
+                    <thead>
+                        <tr style="background: var(--border);">
+                            <th style="padding: 8px 12px; border: 1px solid var(--border);">Consumer ID</th>
+                            <th style="padding: 8px 12px; border: 1px solid var(--border);">Account ID</th>
+                            <th style="padding: 8px 12px; border: 1px solid var(--border);">Account Type</th>
+                            <th style="padding: 8px 12px; border: 1px solid var(--border);">Balance Date</th>
+                            <th style="padding: 8px 12px; border: 1px solid var(--border);">Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">6754</td>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">13777</td>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">CHECKING</td>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">2023-04-15</td>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">23.67</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">1283</td>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">2291</td>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">CHECKING</td>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">2021-01-31</td>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">1153.85</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">1624</td>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">5015</td>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">SAVINGS</td>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">2021-05-28</td>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">544.34</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div
+                style="margin-top: 24px; text-align: center; background: var(--background-card); padding: 16px; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 14px; text-align: left;">
+                    <caption
+                        style="caption-side: bottom; padding: 8px; font-size: 12px; color: var(--text-muted); text-align: center;">
+                        Transaction Dataframe: Each row represents a unique transaction, detailing the amount, date, and
+                        category of the transaction.
+                    </caption>
+                    <thead>
+                        <tr style="background: var(--border);">
+                            <th style="padding: 8px 12px; border: 1px solid var(--border);">Consumer ID</th>
+                            <th style="padding: 8px 12px; border: 1px solid var(--border);">Transaction ID</th>
+                            <th style="padding: 8px 12px; border: 1px solid var(--border);">Category</th>
+                            <th style="padding: 8px 12px; border: 1px solid var(--border);">Amount</th>
+                            <th style="padding: 8px 12px; border: 1px solid var(--border);">Credit or Debit</th>
+                            <th style="padding: 8px 12px; border: 1px solid var(--border);">Posted Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">10961</td>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">3835508</td>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">1</td>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">14.00</td>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">CREDIT</td>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">2021-09-21</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">14792</td>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">4010056</td>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">14</td>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">21.58</td>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">DEBIT</td>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">2021-08-30</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">13182</td>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">5183051</td>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">17</td>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">8.35</td>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">DEBIT</td>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">2021-07-12</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div
+                style="margin-top: 24px; text-align: center; background: var(--background-card); padding: 16px; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 14px; text-align: left;">
+                    <caption
+                        style="caption-side: bottom; padding: 8px; font-size: 12px; color: var(--text-muted); text-align: center;">
+                        Category Mapping: Each category ID corresponds to a specific type of transaction.
+                    </caption>
+                    <thead>
+                        <tr style="background: var(--border);">
+                            <th style="padding: 8px 12px; border: 1px solid var(--border);">Category ID</th>
+                            <th style="padding: 8px 12px; border: 1px solid var(--border);">Category</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">0</td>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">SELF TRANSFER</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">1</td>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">EXTERNAL_TRANSFER</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">2</td>
+                            <td style="padding: 8px 12px; border: 1px solid var(--border);">DEPOSIT</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </section>
@@ -372,33 +531,35 @@
                             <th style="padding-bottom:8px; color:var(--foreground);">Test AUC</th>
                         </tr>
                         <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding:8px 0;">CatBoost</td>
+                            <td style="padding:8px 0; color:var(--accent); font-weight:bold;">0.87</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
                             <td style="padding:8px 0;">XGBoost</td>
-                            <td style="padding:8px 0; color:var(--accent); font-weight:bold;">0.85</td>
+                            <td style="padding:8px 0;">0.86</td>
                         </tr>
                         <tr style="border-bottom: 1px solid var(--border);">
                             <td style="padding:8px 0;">LightGBM</td>
-                            <td style="padding:8px 0;">0.82</td>
+                            <td style="padding:8px 0;">0.85</td>
                         </tr>
                         <tr style="border-bottom: 1px solid var(--border);">
                             <td style="padding:8px 0;">Logistic Regression</td>
-                            <td style="padding:8px 0;">0.80</td>
+                            <td style="padding:8px 0;">0.77</td>
                         </tr>
                     </table>
                 </div>
                 <div class="result-card">
-                    <div class="result-card-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                            <path
-                                d="M9 19V13C9 11.8954 9.89543 11 11 11H13C14.1046 11 15 11.8954 15 13V19M9 19H15M9 19H5L3 19C3 19 3 17 3 15M15 19H19L21 19C21 19 21 17 21 15M3 15V11L12 3L21 11V15"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                    </div>
-                    <h3>Production Outputs & Reason Codes</h3>
-                    <p>Translating continuous default probabilities into actionable lending metrics and transparent
-                        decisions.</p>
+                <div class="result-card-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path
+                            d="M16 8V16M12 11V16M8 14V16M6 20H18C19.1046 20 20 19.1046 20 18V6C20 4.89543 19.1046 4 18 4H6C4.89543 4 4 4.89543 4 6V18C4 19.1046 4.89543 20 6 20Z"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </div>
+                    <h3>Overlaid ROC-AUC Curves</h3>
                     <div
                         style="background: var(--background-muted); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden;">
-                        <img src="image/model_products.png"
+                        <img src="image/roc_curves.png"
                             alt="Production Outputs: Model output translates via (1-probability)x10 to a Cash Score of 7.54, accompanied by top 3 Reason Codes."
                             style="width: 100%; display: block;">
                     </div>
@@ -407,26 +568,60 @@
         </div>
     </section>
 
-    <section class="section" id="conclusion">
+    <section class="section" id="outputs">
+        <div class="container">
+            <span class="section-tag">Outputs</span>
+            <h2 class="section-title">Model Outputs</h2>
+
+            <div
+                style="margin-top: 24px; text-align: center; background: var(--background-card); padding: 16px; border: 1px solid var(--border); border-radius: var(--radius-lg);">
+                <img src="image/model products.png"
+                    alt="Model Outputs: cash score + top 3 reasons influencing the model’s prediction for each consumer"
+                    style="max-height: 400px; margin: 0 auto; display: block; border-radius: var(--radius);">
+                <p style="margin-top: 8px; font-size: 12px; color: var(--text-muted); text-align: center;">
+                    Model Outputs: Cash Score + Top 3 Reason Codes for Each Consumer
+                </p>
+            </div>
+            <p> The model produces two primary outputs for each consumer: a Cash Score as well as the
+                top 3 primary factors influencing the model’s prediction for each consumer. These reason
+                codes highlight key behavioral signals that contributed to the risk assessment. Providing
+                reason codes is important for transparency and helps ensure compliance with the Fair Credit
+                Reporting Act (FCRA), as mentioned before, which requires that consumers be given un-
+                derstandable explanations for adverse credit-related decisions.</p>
+
+        </div>
+    </section>
+
+    <section class="section section-tinted" id="conclusion">
         <div class="container">
             <div class="conclusion-block">
                 <span class="section-tag">Conclusion</span>
                 <h2 class="section-title">The Future of Credit</h2>
+                <div
+                    style="margin-top: 24px; text-align: center; background: var(--background-card); padding: 16px; border: 1px solid var(--border); border-radius: var(--radius-lg);">
+                    <img src="image/heatmap.png"
+                        alt="Heat map of delinquency rates by Cash Score and Credit Score bins, showing delinquency patterns differing within Credit Score bands."
+                        style="max-height: 400px; margin: 0 auto; display: block; border-radius: var(--radius);">
+                    <p style="margin-top: 8px; font-size: 12px; color: var(--text-muted); text-align: center;">
+                        Delinquency Rates of Cash Scores Within Credit Bins
+                    </p>
+                </div>
                 <p>Traditional credit scoring inherently excludes millions of financially responsible individuals. By
                     shifting the paradigm to <strong>cash flow underwriting</strong>, we successfully demonstrated the
                     ability to leverage transaction-level behavior to evaluate repayment risk.</p>
-                <p>Our XGBoost architecture, achieving a 0.85 Test AUC, proves that anonymized bank transaction data
-                    contains rich, highly predictive signals. This approach allows financial institutions to
-                    differentiate risk among borrowers with similar financial profiles who may otherwise appear
-                    identical under legacy FICO metrics. By translating model probabilities into 1-10 Cash Scores and
-                    providing interpretable signals through embedded reason codes, this methodology enables transparent
-                    decisions. Ultimately, these tools can be directly integrated into existing lending workflows to
-                    support more precise, inclusive, and data-driven underwriting.</p>
+                <p>As you can see, Cash Scores are not intended to replace traditional credit scores, but rather
+                    to support them. While credit scores often rely on fixed cutoff thresholds for approval
+                    decisions, they may not fully capture short-term liquidity conditions or behavioral risk differences
+                    among borrowers with similar scores. This is where our scores jump in. By providing additional
+                    screening within each credit score band, the Cash Score helps differentiate repayment risk among
+                    consumers who appear identical under traditional scoring models. For example, individuals with high
+                    credit scores but weak cash-flow stability may still face elevated default risk. Incorporating the
+                    Cash Score therefore enhances risk stratification and supports more informed lending decisions.</p>
             </div>
         </div>
     </section>
 
-    <section class="section section-tinted" id="team">
+    <section class="section" id="team">
         <div class="container">
             <span class="section-tag">Our Team</span>
             <h2 class="section-title">Contributors</h2>

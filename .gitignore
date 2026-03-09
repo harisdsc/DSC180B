@@ -7,3 +7,4 @@ models/
 env/
 plot_pr.py
 plot_roc.py
+benchmark_latency.py

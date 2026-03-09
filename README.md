@@ -53,21 +53,21 @@ python3 train.py <model> [--tune]
 - `configs/`: Optimized model hyperparameters
 - `data/`: Local storage for datasets and features (git-ignored)
 - `models`: Saved trained model binaries
+- `images/`: Visualizations of model performance
 - `src/`: Source code fro loading, engineerin, and evaluation
 - `train.py`: Main script for model training and seletion
   
 ## Results
 
-The **XGBoost** model achieved the highest perfomance with an **AUC-ROC of ...**
-e XGBoost model achieved the highest performance with an AUC-ROC of 0.8391.
+The **CatBoost** model achieved the highest perfomance with an **AUC-ROC of 0.8672**.
 
-- XGBoost: ... AUC
+- CatBoost: 0.8672 AUC
 
-- LightGBM: ... AUC
+- XGBoost: 0.8622 AUC
 
-- CatBoost: ... AUC
+- LightGBM: 0.8510 AUC
 
-- Logistic Regression: ... AUC
+- Logistic Regression: 0.7734 AUC
 ---
 **Team**: Ada Mo, Brighton Chan, Haris Saif, Kyle Choi
 **Mentors**: Kyle Nero & Daniel Matthew (Prism Data)
