@@ -4,3 +4,4 @@ catboost_info/
 test_features.py
 models/
 .DS_Store
+env/

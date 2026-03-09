@@ -1,81 +1,47 @@
-from src.load_data import load_data
-from src.features.haris.income_feats import income_feats
-from src.features.haris.balance_feats import balance_feats
-from src.features.haris.category_feats import category_feats
-from src.features.ada.income_ratio_features import income_ratio_feats
-from src.features.brighton.account_feats import build_account_features
-from src.features.brighton.income_feats import build_income_features
-from src.features.brighton.running_balance import build_running_balance
-from src.features.brighton.balance_feats import build_balance_dynamics
-from src.features.kyle.time_features import create_time_features
-import pandas as pd
-import time
 import os
+import time
+import pandas as pd
+from src.data_loader import load_and_clean_data
+from src.features.feature_engineering import calculate_running_balance, extract_ALL_features
 
 def run_pipeline():
-    if os.path.exists('data/features.pqt'):
-        print("Loading precomputed features...")
-        df = pd.read_parquet('data/features.pqt')
-        print(f"Shape: {df.shape}")
+    """
+    Main execution function that loads raw data, computes advanced features,
+    and caches the final dataset.
+    """
+    feature_cache_path = 'data/features.pqt'
+
+    if os.path.exists(feature_cache_path):
+        print(f"✅ Loading precomputed features from {feature_cache_path}...")
+        df = pd.read_parquet(feature_cache_path)
+        print(f"Total consumers loaded: {len(df):,}")
         return df
+
+    print("🚀 Starting Advanced Feature Engineering Pipeline...")
+    pipeline_start_time = time.time()
+
+    data_directory = 'data'
+    # load_and_clean_data handles filtering and merging
+    consDF, acctDF, trxnDF = load_and_clean_data(data_path=data_directory)
     
-    # Load Data
-    print("Loading data...")
-    consDF, acctDF, trxnDF, cat_map = load_data()
+    print("Calculating chronological running balances...")
+    history_all = calculate_running_balance(trxnDF, acctDF)
+    
+    print("Extracting complex feature set (this may take several minutes)...")
+    # extract_ALL_features handles all AI and statistical calculations
+    master_features_df = extract_ALL_features(history_all, acctDF)
+    
+    master_features_df = master_features_df.dropna(subset=['DQ_TARGET'])
+    master_features_df = master_features_df.groupby('prism_consumer_id').max().reset_index()
+    
+    print(f"Saving {len(master_features_df):,} consumers to {feature_cache_path}...") # Fix: Removed space after comma
+    os.makedirs(os.path.dirname(feature_cache_path), exist_ok=True)
+    master_features_df.to_parquet(feature_cache_path)
 
-    features = consDF[['prism_consumer_id']]
-
-    features_start = time.time()
-
-    # Income features
-    print("Generating income features...")
-    income_df_haris = income_feats(trxnDF)
-    features = features.merge(income_df_haris, on='prism_consumer_id', how='left')
-    income_df_ada = income_ratio_feats(trxnDF, cat_map)
-    features = features.merge(income_df_ada, on='prism_consumer_id', how='left')
-    income_df_brighton = build_income_features(trxnDF, cat_map)
-    features = features.merge(income_df_brighton, on='prism_consumer_id', how='left')
-
-    # Balance Features
-    print("Generating balance features...")
-    balance_df_haris = balance_feats(acctDF)
-    features = features.merge(balance_df_haris, on='prism_consumer_id', how='left')
-    features['avg_balance'] = features['avg_balance'].fillna(0)
-    full_balance_df = build_running_balance(acctDF, trxnDF)
-    balance_df_brighton = build_balance_dynamics(full_balance_df)
-    features = features.merge(balance_df_brighton, on='prism_consumer_id', how='left')
-
-    # Income + Balance Features
-    features['balance_income_ratio'] = features.apply(
-        lambda x: x['avg_balance'] / x['avg_monthly_income'] if x['avg_monthly_income'] > 0 else 0, axis=1
-    )
-
-    # Account features
-    print("Generating account features...")
-    account_df_brighton = build_account_features(acctDF)
-    features = features.merge(account_df_brighton, on='prism_consumer_id', how='left')
-
-    # Time features
-    # print("Generating time features...")
-    # time_df_kyle = create_time_features(trxnDF)
-    # features = features.merge(time_df_kyle, on='prism_consumer_id', how='left')
-
-    # Category Features
-    # print("Generating category features...")
-    # cat_df = category_feats(trxnDF)
-    # features = features.merge(cat_df, on='prism_consumer_id', how='left')
-
-    df = consDF.merge(features, on='prism_consumer_id', how='inner')
-
-    df = df.fillna(0)
-
-    print(f"Shape: {df.shape}")
-    print(df.head())
-
-    df.to_parquet('data/features.pqt')
-    return df
+    total_time = (time.time() - pipeline_start_time) / 60
+    print(f"✅ Pipeline completed successfully in {total_time:.2f} minutes.")
+    
+    return master_features_df
 
 if __name__ == "__main__":
-    df = run_pipeline()
-    print(df.head())
-    print(f"Final shape: {df.shape}")
+    run_pipeline()
