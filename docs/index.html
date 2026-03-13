@@ -511,7 +511,7 @@
         <div class="container">
             <span class="section-tag">Results</span>
             <h2 class="section-title">Results &amp; Discussion</h2>
-            <p class="section-desc">Our final XGBoost model successfully demonstrates the robust predictive power of
+            <p class="section-desc">Our final CatBoost model successfully demonstrates the robust predictive power of
                 cash-flow underwriting, allowing for transparent deployment into actual lending workflows.</p>
 
             <div class="results-grid">
@@ -532,19 +532,19 @@
                         </tr>
                         <tr style="border-bottom: 1px solid var(--border);">
                             <td style="padding:8px 0;">CatBoost</td>
-                            <td style="padding:8px 0; color:var(--accent); font-weight:bold;">0.87</td>
+                            <td style="padding:8px 0; color:var(--accent); font-weight:bold;">0.8585</td>
                         </tr>
                         <tr style="border-bottom: 1px solid var(--border);">
                             <td style="padding:8px 0;">XGBoost</td>
-                            <td style="padding:8px 0;">0.86</td>
+                            <td style="padding:8px 0;">0.8539</td>
                         </tr>
                         <tr style="border-bottom: 1px solid var(--border);">
                             <td style="padding:8px 0;">LightGBM</td>
-                            <td style="padding:8px 0;">0.85</td>
+                            <td style="padding:8px 0;">0.8222</td>
                         </tr>
                         <tr style="border-bottom: 1px solid var(--border);">
                             <td style="padding:8px 0;">Logistic Regression</td>
-                            <td style="padding:8px 0;">0.77</td>
+                            <td style="padding:8px 0;">0.7532</td>
                         </tr>
                     </table>
                 </div>
@@ -611,9 +611,9 @@
                 <p>As you can see, Cash Scores are not intended to replace traditional credit scores, but rather
                     to support them. While credit scores often rely on fixed cutoff thresholds for approval
                     decisions, they may not fully capture short-term liquidity conditions or behavioral risk differences
-                    among borrowers with similar scores. This is where our scores jump in. By providing additional
+                    among borrowers with similar scores. This is where our scores jump in. <strong>By providing additional
                     screening within each credit score band, the Cash Score helps differentiate repayment risk among
-                    consumers who appear identical under traditional scoring models. For example, individuals with high
+                    consumers who appear identical under traditional scoring models.</strong> For example, individuals with high
                     credit scores but weak cash-flow stability may still face elevated default risk. Incorporating the
                     Cash Score therefore enhances risk stratification and supports more informed lending decisions.</p>
             </div>

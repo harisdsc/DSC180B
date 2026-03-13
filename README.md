@@ -59,7 +59,7 @@ python3 train.py <model> [--tune]
   
 ## Results
 
-The **CatBoost** model achieved the highest perfomance with an **AUC-ROC of 0.8672**.
+The **CatBoost** model achieved the highest perfomance with an **AUC-ROC of 0.8585**.
 
 - CatBoost: 0.8585 AUC
 
